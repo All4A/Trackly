@@ -7,13 +7,13 @@ import (
 )
 
 func createHobby(c echo.Context) error {
-	hobby := main.Hobby{}
+	hobby := Hobby{}
 
 	if err := c.Bind(&hobby); err != nil {
 		return err
 	}
 
-	result := main.db.Create(&hobby)
+	result := db.Create(&hobby)
 
 	if result.Error != nil {
 		return c.JSON(500, result.Error)
@@ -23,16 +23,16 @@ func createHobby(c echo.Context) error {
 }
 
 func getHobby(c echo.Context) error {
-	var hobbies []main.Hobby
+	var hobbies []Hobby
 
-	main.db.Find(&hobbies)
+	db.Find(&hobbies)
 
 	return c.JSON(http.StatusOK, hobbies)
 }
 
 func getHobbyById(c echo.Context) error {
 	id := c.Param("id")
-	var hobby main.Hobby
+	var hobby Hobby
 
 	if result := db.First(&hobby, id); result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -47,7 +47,7 @@ func getHobbyById(c echo.Context) error {
 func updateHobby(c echo.Context) error {
 	id := c.Param("id")
 
-	var hobby main.Hobby
+	var hobby Hobby
 
 	if result := db.First(&hobby, id); result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -69,7 +69,7 @@ func updateHobby(c echo.Context) error {
 
 func deleteHobby(c echo.Context) error {
 	id := c.Param("id")
-	var hobby main.Hobby
+	var hobby Hobby
 
 	if res := db.Delete(&hobby, id); res.Error != nil {
 		return c.JSON(http.StatusInternalServerError, res.Error)
@@ -82,7 +82,7 @@ func addHobbyToUser(c echo.Context) error {
 	userId := c.Param("userId")
 	hobbyId := c.Param("hobbyId")
 
-	var user main.User
+	var user User
 
 	if result := db.First(&user, userId); result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -91,7 +91,7 @@ func addHobbyToUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, result.Error)
 	}
 
-	var hobby main.Hobby
+	var hobby Hobby
 
 	if result := db.First(&hobby, hobbyId); result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
