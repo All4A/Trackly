@@ -64,7 +64,7 @@ const SignUp = () => {
         </div>
         <button type="submit" className="create-account-btn">Create an Account</button>
       </form>
-      <p>Do you have an Account? <a href="/signin">Sign In</a></p>
+      <p>Do you have an Account? <a href="/">Sign In</a></p>
     </div>
   );
 };
