@@ -1,57 +1,72 @@
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #0d1117;
-  }
-  
-  .form-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  h1 {
-    margin-bottom: 20px;
-    color: #0d1117;
-  }
-  
-  .input-field {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    font-size: 16px;
-  }
-  
-  .continue-button {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 10px 0;
-    background-color: #f9a825;
-    border: none;
-    border-radius: 25px;
-    font-size: 16px;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .sign-in-link {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #6e7781;
-  }
-  
-  .sign-in-link a {
-    color: #0d1117;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  .sign-in-link a:hover {
-    text-decoration: underline;
-  }
+body {
+  background-color: #5234d8;
+}
+
+.signup-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 16px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.create-account-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: orange;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.create-account-btn:hover {
+  background-color: darkorange;
+}
+
+p {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
+}
