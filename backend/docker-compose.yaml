@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Сервис для PostgreSQL
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trackly-db
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+
+#   Сервис для вашего Go-приложения
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-go-service
+    depends_on:
+      - postgres
+    volumes:
+      - ./configs:/app/configs  # Монтируем папку configs
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trackly-db
+
+# Настройка volumes и networks
+
+networks:
+  my-network:
+    driver: bridge
