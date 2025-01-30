@@ -1,0 +1,20 @@
+.hobby-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  /* Equivalent to gap-5 in Tailwind CSS */
+}
+
+.hobby-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  /* Optional: Rounded corners for cards */
+}
+
+.hobby-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.49 / 1;
+  object-fit: cover;
+}

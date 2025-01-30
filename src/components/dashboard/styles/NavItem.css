@@ -1,0 +1,43 @@
+.nav-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+  position: fixed;
+  left: 0;
+  top: 7.5%;
+  bottom: 0;
+  width: 200px;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  gap: 1.75rem;
+  white-space: nowrap;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-item .icon {
+  object-fit: contain;
+  width: 25px;
+  aspect-ratio: 1 / 1;
+}
+
+.active {
+  color: #ff5851;
+}
+
+.inactive {
+  color: #9ca3af;
+}
