@@ -22,9 +22,6 @@ services:
     container_name: my-go-service
     depends_on:
       - postgres
-    volumes:
-      - ./configs:/app/configs  # Монтируем папку configs
-      - ./migrations:/app/migrations  # Монтируем папку с миграциями
 
     ports:
       - "8080:8080"

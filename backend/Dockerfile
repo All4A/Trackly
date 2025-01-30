@@ -27,7 +27,7 @@ COPY --from=builder /app/my-go-service .
 
 # Копируем папку с конфигурацией
 COPY configs ./configs
-
+COPY migrations ./migrations
 # Открываем порт
 EXPOSE 8080
 
