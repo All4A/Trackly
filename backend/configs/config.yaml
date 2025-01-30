@@ -1,0 +1,7 @@
+port: 8080
+database:
+  host: postgres
+  port: 5432
+  username: postgres
+  password: postgres
+  dbname: trackly-db
