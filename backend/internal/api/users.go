@@ -7,20 +7,20 @@ import (
 	"trackly-backend/internal/repositories"
 )
 
-func NewUserApi(userRepo *repositories.UserRepository) *UserApi {
-	return &UserApi{userRepo: userRepo}
+func NewServer(userRepo *repositories.UserRepository) *Server {
+	return &Server{userRepo: userRepo}
 }
 
-type UserApi struct {
+type Server struct {
 	userRepo *repositories.UserRepository
 }
 
-func (s *UserApi) PostLogin(ctx echo.Context) error {
+func (s *Server) PostLogin(ctx echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *UserApi) PostRegister(ctx echo.Context) error {
+func (s *Server) PostRegister(ctx echo.Context) error {
 	var user models.User
 	if err := ctx.Bind(&user); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})

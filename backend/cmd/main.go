@@ -3,18 +3,12 @@ package main
 import (
 	"flag"
 	"github.com/labstack/echo/v4"
-	_ "github.com/oapi-codegen/runtime"
 	"log"
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
 	"trackly-backend/internal/db"
 	"trackly-backend/internal/repositories"
 )
-
-type Server struct {
-	*api.UserApi
-	*api.HabitsApi
-}
 
 func main() {
 	// Загрузка конфигурации
@@ -38,12 +32,8 @@ func main() {
 
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
-	userApi := api.NewUserApi(userRepo)
+	server := api.NewServer(userRepo)
 
-	habitRepo := repositories.NewHabitRepository(database)
-	habitsApi := api.NewHabitsApi(habitRepo)
-
-	server := &Server{userApi, habitsApi}
 	// Регистрация эндпоинтов из OpenAPI
 	api.RegisterHandlers(e, server)
 
