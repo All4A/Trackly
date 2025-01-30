@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { hobbies } from "./data/hobbies";
 import Header from "./Header";
 import NavItem from "./NavItem";
 import HobbyGrid from "./HobbyGrid";
@@ -33,6 +32,25 @@ const NAV_ITEMS = [
   }
 ];
 
+const hobbies = [
+  {
+    id: 1,
+    name: "Football",
+    startDate: "29/01/2024",
+    currentPlan: "2 times/week",
+    todayTime: 2,
+    dailyGoal: 3
+  },
+  {
+    id: 2,
+    name: "Tennis",
+    startDate: "29/01/2024",
+    currentPlan: "5 hours/day",
+    todayTime: 2,
+    dailyGoal: 5
+  },
+];
+
 export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("dashboard");
 
@@ -57,10 +75,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
               <button className="button-secondary">See All</button>
             </div>
-            <HobbyGrid images={hobbies.slice(0, 3)} />
-            <div className="mt-7">
-              <HobbyGrid images={hobbies.slice(3)} />
-            </div>
+            <HobbyGrid hobbies={hobbies} />
           </section>
         </div>
       </main>
