@@ -5,6 +5,8 @@
   padding: 0.7rem 2.75rem;
   width: 94%;
   background-color: white;
+  position: fixed;
+  z-index: 1;
 }
 
 .header .logo-container {
