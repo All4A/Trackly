@@ -30,7 +30,8 @@
 
 .header .overview {
   flex-grow: 1;
-  text-align: center;
+  text-align: left;
+  margin-left: 8%;
   font-size: 1.875rem;
   font-weight: 600;
 }

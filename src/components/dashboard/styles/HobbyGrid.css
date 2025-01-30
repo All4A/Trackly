@@ -10,6 +10,7 @@
   border-radius: 0.5rem;
   background: linear-gradient(90deg, #3a47d8, #0065ff);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .hobby-content {
