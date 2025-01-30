@@ -3,6 +3,7 @@ module trackly-backend
 go 1.22.0
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/labstack/echo/v4 v4.11.4
 	gopkg.in/yaml.v3 v3.0.1
