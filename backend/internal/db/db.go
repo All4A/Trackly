@@ -2,10 +2,13 @@ package db
 
 import (
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"trackly-backend/internal/config"
-	"trackly-backend/internal/models"
 )
 
 func InitDB(cfg *config.DbConfig) (*gorm.DB, error) {
@@ -17,10 +20,22 @@ func InitDB(cfg *config.DbConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Автомиграция (создание таблиц, если их нет)
-	if err := db.AutoMigrate(&models.User{}); err != nil {
-		return nil, err
+	migraionDns := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DbName)
+
+	m, err := migrate.New(
+		"file://migrations",
+		migraionDns,
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to initialize migrations: %v", err)
 	}
 
+	// Применение миграций
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
+
+	log.Println("Migrations applied successfully!")
 	return db, nil
 }
