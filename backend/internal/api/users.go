@@ -16,18 +16,19 @@ type Server struct {
 }
 
 func (s *Server) PostLogin(ctx echo.Context) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Server) PostRegister(ctx echo.Context) error {
 	var user models.User
 	if err := ctx.Bind(&user); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
+	println("username" + user.Username)
 	err := s.userRepo.CreateUser(&user)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return ctx.JSON(200, user)
-}
-
-func (s *Server) PostRegister(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
 }

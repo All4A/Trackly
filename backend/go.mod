@@ -2,11 +2,9 @@ module trackly-backend
 
 go 1.22.0
 
-
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.2
 	github.com/labstack/echo/v4 v4.11.4
-	github.com/mattes/migrate v3.0.1+incompatible
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
