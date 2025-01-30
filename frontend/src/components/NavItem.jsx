@@ -1,5 +1,5 @@
 import React from "react";
-import "./styles/NavItem.css";
+import "./NavItem.css";
 
 export default function NavItem({ icon, label, isActive, onClick }) {
   return (

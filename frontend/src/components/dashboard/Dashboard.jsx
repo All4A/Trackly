@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Header from "./Header";
-import NavItem from "./NavItem";
+import Header from "../Header";
+import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
 import "./styles/Dashboard.css";
 
