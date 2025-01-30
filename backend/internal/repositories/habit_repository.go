@@ -12,6 +12,7 @@ type HabitRepositoryInterface interface {
 	GetHabitById(id int) (*models.Habit, error)
 	DeleteHabitById(id int) error
 	UpdateHabit(habit *models.Habit) error
+	GetHabits() ([]*models.Habit, error)
 }
 
 type HabitRepository struct {
