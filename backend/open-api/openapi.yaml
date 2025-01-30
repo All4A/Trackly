@@ -80,6 +80,123 @@ paths:
           description: Неверные данные для входа
         '401':
           description: Неверный логин или пароль
+  /habit:
+    post:
+      summary: Создать новую привычку
+      description: Создает новую привычку для текущего пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: running
+                description:
+                  type: string
+                  example: it is very important habit for me because ...
+              required:
+                - name
+      responses:
+        '200':
+          description: Успешное добавление
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '409':
+          description: Такая привычка уже есть, выберите ее из списка
+    get:
+      summary: Получить привычку по id
+      description: Возвращает информацию о привычке
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+      responses:
+        '200':
+          description: Информация о привычке
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: running
+        '404':
+          description: Привычка не найдена
+    delete:
+      summary: Удаление привычки по id
+      description: Удаляет привычку из таблицы habit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+      responses:
+        '200':
+          description: Привычка успешно удаленна
+        '404':
+          description: Привычка не найдена
+    put:
+      summary: Обновление информации о привычке
+      description: Обновляет информацию о привычке
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: newName
+                description:
+                  type: string
+                  example: newDecsription
+              required:
+                - name
+                - description
+      responses:
+        '200':
+          description: Информарция о привычке успешна обновлена
+        '404':
+          description: Такой привычки не существует
+
+
+
+
+
+
+
+
+
+
 
 components:
   securitySchemes:
