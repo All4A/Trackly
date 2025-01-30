@@ -3,17 +3,21 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"trackly-backend/internal/auth"
+	"trackly-backend/internal/auth" // Импорт пакета auth
 	"trackly-backend/internal/models"
 	"trackly-backend/internal/repositories"
 )
 
-func NewServer(userRepo *repositories.UserRepository) *Server {
-	return &Server{userRepo: userRepo}
+func NewServer(userRepo *repositories.UserRepository, jwtSecret string) *Server {
+	return &Server{
+		userRepo:  userRepo,
+		jwtSecret: jwtSecret,
+	}
 }
 
 type Server struct {
-	userRepo *repositories.UserRepository
+	userRepo  *repositories.UserRepository
+	jwtSecret string
 }
 
 func (s *Server) PostLogin(ctx echo.Context) error {
@@ -28,7 +32,11 @@ func (s *Server) PostLogin(ctx echo.Context) error {
 		return ctx.JSON(401, map[string]string{"error": "Invalid username or password"})
 	}
 
-	token, err := auth.GenerateToken(user.Username)
+	if err = auth.CheckPassword(user.Password, loginData.Password); err != nil {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
+	}
+
+	token, err := auth.GenerateToken("username", []byte(s.jwtSecret))
 	if err != nil {
 		return ctx.JSON(500, map[string]string{"error": err.Error()})
 	}
@@ -41,10 +49,19 @@ func (s *Server) PostRegister(ctx echo.Context) error {
 	if err := ctx.Bind(&user); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
-	println("username" + user.Username)
-	err := s.userRepo.CreateUser(&user)
+
+	hashedPassword, err := auth.HashPassword(user.Password)
+
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return ctx.JSON(500, map[string]string{"error": "Error hashing password"})
 	}
-	return ctx.JSON(200, user)
+
+	user.Password = hashedPassword
+
+	err = s.userRepo.CreateUser(&user)
+	if err != nil {
+		return ctx.JSON(500, map[string]string{"error": err.Error()})
+	}
+
+	return ctx.JSON(200, map[string]string{"message": "User registered successfully"})
 }

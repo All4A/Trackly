@@ -2,6 +2,6 @@ package models
 
 type User struct {
 	ID       int    `gorm:"column:id"`
-	Password string `json:"password"`
+	Password string `json:"-"`
 	Username string `json:"username"`
 }

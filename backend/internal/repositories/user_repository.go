@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"gorm.io/gorm"
+	"trackly-backend/internal/db"
 	"trackly-backend/internal/models"
 )
 
@@ -18,9 +19,20 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 }
 
 func (r *UserRepository) FindUserByUsername(username string) (*models.User, error) {
-	var user models.User
-	if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
-		return nil, err
+	return findUser(r.db, withUserName(username))
+}
+
+func findUser(tx *gorm.DB, opts ...db.CommonScopeOption) (*models.User, error) {
+	user := models.User{}
+	err := tx.Model(&models.User{}).Scopes(opts...).Last(user)
+	if err != nil {
+		return nil, err.Error
 	}
 	return &user, nil
+}
+
+func withUserName(userName string) db.CommonScopeOption {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("username = ?", userName)
+	}
 }

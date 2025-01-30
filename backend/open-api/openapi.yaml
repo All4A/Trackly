@@ -82,6 +82,56 @@ paths:
           description: Неверный логин или пароль
 
 components:
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user123
+        password:
+          type: string
+          example: password123
+      required:
+        - username
+        - password
+    RegisterResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user123
+        password:
+          type: string
+          example: password123
+      required:
+        - username
+        - password
+
+      LoginResponse:
+        type: object
+        properties:
+          token:
+            type: string
+            description: JWT токен для аутентификации
+            example: "your.jwt.token"
+        required:
+          - token
+
+      ErrorResponse:
+        type: object
+        properties:
+          error:
+            type: string
+            example: "Invalid username or password"
+        required:
+          - error
   securitySchemes:
     BearerAuth:
       type: http

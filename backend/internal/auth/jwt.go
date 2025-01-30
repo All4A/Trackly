@@ -5,13 +5,7 @@ import (
 	"time"
 )
 
-var jwtSecret = []byte("")
-
-func Init(secret string) {
-	jwtSecret = []byte(secret)
-}
-
-func GenerateToken(username string) (string, error) {
+func GenerateToken(username string, jwtSecret []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
@@ -22,7 +16,8 @@ func GenerateToken(username string) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func ValidateToken(tokenString string) (jwt.MapClaims, error) {
+// ValidateToken validates a JWT token and extracts claims
+func ValidateToken(tokenString string, jwtSecret []byte) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
 	})
@@ -32,7 +27,6 @@ func ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-
 	if !ok || !token.Valid {
 		return nil, err
 	}
