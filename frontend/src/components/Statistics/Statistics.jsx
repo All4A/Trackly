@@ -3,7 +3,20 @@ import Header from "../Header";
 import NavItem from "../NavItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStopwatch, faChartPie, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Legend, Title, Tooltip } from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
 import "./Statistics.css";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Legend,
+  Title,
+  Tooltip
+);
 
 const API_KEY = "83f09f65141e45b4bd5a3a0e1157ad85";
 const NAV_ITEMS = [
@@ -47,6 +60,84 @@ const StatisticItem = ({ icon, label, value, unit }) => (
     </div>
   </div>
 );
+
+const WeeklyActivityChart = () => {
+  const data = {
+    labels: ['Sat', 'Sun', 'Mon', 'Tue'],
+    datasets: [
+      {
+        label: 'Planned',
+        data: [45, 30, 50, 70],
+        backgroundColor: 'rgba(0, 105, 148, 0.6)',
+        borderColor: 'rgba(0, 105, 148, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'Activity',
+        data: [90, 60, 60, 90],
+        backgroundColor: 'rgba(255, 102, 0, 0.6)',
+        borderColor: 'rgba(255, 102, 0, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+            max: 100,
+            stepSize: 20,
+            callback: (value) => `${value}%`,
+          },
+        },
+      ],
+    },
+    legend: {
+      position: 'top',
+    },
+  };
+
+  return <Bar data={data} options={options} />;
+};
+
+const MonthlyHistoryChart = () => {
+  const data = {
+    labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+    datasets: [
+      {
+        label: 'Activity',
+        data: [20, 40, 50, 90, 70, 30, 75],
+        fill: true,
+        backgroundColor: 'rgba(0, 105, 148, 0.2)',
+        borderColor: 'rgba(0, 105, 148, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+            max: 100,
+            stepSize: 25,
+            callback: (value) => `${value}%`,
+          },
+        },
+      ],
+    },
+    legend: {
+      position: 'top',
+    },
+  };
+
+  return <Line data={data} options={options} />;
+};
 
 export default function Statistics() {
   const [activeNav, setActiveNav] = useState("statistics");
@@ -108,21 +199,11 @@ export default function Statistics() {
             <div className="flex-container">
               <div className="weekly-activity">
                 <h2>Weekly Activity</h2>
-                <img
-                  loading="lazy"
-                  src={`https://cdn.builder.io/api/v1/image/assets/TEMP/a571aacbc2a840f50151b495a64cc34c3ef905df2c4a3db74e703ed3c566d320?placeholderIfAbsent=true&apiKey=${API_KEY}`}
-                  alt="Weekly activity chart"
-                  className="chart-image"
-                />
+                <WeeklyActivityChart />
               </div>
               <div className="monthly-history">
                 <h2 className="content-header">Monthly History</h2>
-                <img
-                  loading="lazy"
-                  src={`https://cdn.builder.io/api/v1/image/assets/TEMP/272578a727232693711dc03508fd45e112c1ebb3157d6cefd477b7da416018c2?placeholderIfAbsent=true&apiKey=${API_KEY}`}
-                  alt="Monthly history chart"
-                  className="chart-image mt-5"
-                />
+                <MonthlyHistoryChart />
               </div>
             </div>
           </div>

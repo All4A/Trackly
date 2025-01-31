@@ -24,13 +24,13 @@
 
 .weekly-activity {
   flex: 1;
-  max-width: 40%;
+  max-width: 45%;
 }
 
 .monthly-history {
   flex: 1;
-  max-width: 59%;
-  margin-top: 2.5%;
+  max-width: 45%;
+  margin-left: 5%;
 }
 
 .personal-statistics {
