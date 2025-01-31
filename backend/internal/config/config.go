@@ -8,9 +8,10 @@ import (
 
 // Config represents the application configuration
 type Config struct {
-	AppName  string   `yaml:"app_name"`
-	Port     string   `yaml:"port"`
-	Database DbConfig `yaml:"database"`
+	AppName   string   `yaml:"app_name"`
+	Port      string   `yaml:"port"`
+	Database  DbConfig `yaml:"database"`
+	JWTSecret string   `yaml:"jwt_secret"`
 }
 
 // DbConfig represents the database configuration
@@ -53,6 +54,14 @@ func LoadConfig(filePath string) (*Config, error) {
 			return nil, fmt.Errorf("DB_PASSWORD environment variable is not set")
 		}
 		config.Database.Password = dbPassword
+	}
+
+	if config.JWTSecret == "" {
+		jwtSecret := os.Getenv("JWT_SECRET")
+		if jwtSecret == "" {
+			return nil, fmt.Errorf("JWT_SECRET environment variable is not set")
+		}
+		config.JWTSecret = jwtSecret
 	}
 
 	return &config, nil
