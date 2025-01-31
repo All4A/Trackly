@@ -1,53 +1,133 @@
 import React, { useState } from "react";
 import Header from "../Header";
 import NavItem from "../NavItem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStopwatch, faChartPie, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import "./Statistics.css";
 
+const API_KEY = "83f09f65141e45b4bd5a3a0e1157ad85";
 const NAV_ITEMS = [
   {
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/52cc0491a8a854a6223c8f6f5eb25a394220233d9af9b146381e516021a4f12a?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
+    icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/52cc0491a8a854a6223c8f6f5eb25a394220233d9af9b146381e516021a4f12a?placeholderIfAbsent=true&apiKey=${API_KEY}`,
     label: "Dashboard",
-    id: "dashboard"
+    id: "dashboard",
   },
   {
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/15b5cfc67820989891b23b4a3710555588e81195c9ddeab528597b09ac566868?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
+    icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/15b5cfc67820989891b23b4a3710555588e81195c9ddeab528597b09ac566868?placeholderIfAbsent=true&apiKey=${API_KEY}`,
     label: "Accounts",
-    id: "accounts"
+    id: "accounts",
   },
-  { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/380cdb3e93aaef46827ba46ba7b8fe11fb670b7dc56c86e51b76801ccbf6329a?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
+  {
+    icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/380cdb3e93aaef46827ba46ba7b8fe11fb670b7dc56c86e51b76801ccbf6329a?placeholderIfAbsent=true&apiKey=${API_KEY}`,
     label: "Statistics",
-    id: "statistics"
+    id: "statistics",
   },
   {
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
+    icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=${API_KEY}`,
     label: "New hobbie",
-    id: "new"
+    id: "new",
   },
   {
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/cb3b5e46aa2a248a1a76117e406f510ecf7e2f23b6cf1d96b9a1d498186831bb?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
+    icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/cb3b5e46aa2a248a1a76117e406f510ecf7e2f23b6cf1d96b9a1d498186831bb?placeholderIfAbsent=true&apiKey=${API_KEY}`,
     label: "Log out",
-    id: "logout"
-  }
+    id: "logout",
+  },
 ];
+
+const StatisticItem = ({ icon, label, value, unit }) => (
+  <div className="statistic-item">
+    <div className="icon-container">
+      <FontAwesomeIcon icon={icon} />
+    </div>
+    <div className="statistic-content">
+      <p>{label}</p>
+      <h3>
+        {value} {unit}
+      </h3>
+    </div>
+  </div>
+);
 
 export default function Statistics() {
   const [activeNav, setActiveNav] = useState("statistics");
+
+  const personalStatistics = [
+    {
+      icon: faStopwatch,
+      label: "Total hobbies time spent",
+      value: 429,
+      unit: "h",
+    },
+    {
+      icon: faChartPie,
+      label: "Average hobby time",
+      value: 1.3,
+      unit: "h / day",
+    },
+    {
+      icon: faArrowUp,
+      label: "Intensity gain",
+      value: "+5.80",
+      unit: "%",
+    },
+  ];
+
+  const renderNavItems = () =>
+    NAV_ITEMS.map(({ icon, label, id }) => (
+      <NavItem
+        key={id}
+        icon={icon}
+        label={label}
+        isActive={activeNav === id}
+        onClick={() => setActiveNav(id)}
+        className={`nav-item ${activeNav === id ? "active" : ""}`}
+      />
+    ));
 
   return (
     <div className="statistics-container">
       <Header />
       <nav className="nav-sidebar">
-        {NAV_ITEMS.map(({ icon, label, id }) => (
-          <NavItem
-            key={id}
-            icon={icon}
-            label={label}
-            isActive={activeNav === id}
-            onClick={() => setActiveNav(id)}
-            className={`nav-item ${activeNav === id ? "active" : ""}`}
-          />
-        ))}
+        {renderNavItems()}
       </nav>
+      <div className="flex-container">
+        <main className="main-content">
+          <div>
+            <h2>Personal Statistics</h2>
+            <div className="personal-statistics">
+              {personalStatistics.map((stat) => (
+                <StatisticItem
+                  key={stat.label}
+                  icon={stat.icon}
+                  label={stat.label}
+                  value={stat.value}
+                  unit={stat.unit}
+                />
+              ))}
+            </div>
+            <div className="flex-container">
+              <div className="weekly-activity">
+                <h2>Weekly Activity</h2>
+                <img
+                  loading="lazy"
+                  src={`https://cdn.builder.io/api/v1/image/assets/TEMP/a571aacbc2a840f50151b495a64cc34c3ef905df2c4a3db74e703ed3c566d320?placeholderIfAbsent=true&apiKey=${API_KEY}`}
+                  alt="Weekly activity chart"
+                  className="chart-image"
+                />
+              </div>
+              <div className="monthly-history">
+                <h2 className="content-header">Monthly History</h2>
+                <img
+                  loading="lazy"
+                  src={`https://cdn.builder.io/api/v1/image/assets/TEMP/272578a727232693711dc03508fd45e112c1ebb3157d6cefd477b7da416018c2?placeholderIfAbsent=true&apiKey=${API_KEY}`}
+                  alt="Monthly history chart"
+                  className="chart-image mt-5"
+                />
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
