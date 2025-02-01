@@ -181,6 +181,139 @@ paths:
           description: Привычка успешно удаленна
         '404':
           description: Привычка не найдена
+  /user_habits:
+    post:
+      summary: Добавить привычку к пользователю
+      description: Добавляет в user_habit связь привычки и пользователя с датой и планом
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                habit_name:
+                  type: string
+                  example: running
+                description:
+                  type: string
+                  example: smth interesting
+                user_id:
+                  type: integer
+                  example: 1
+                start_date:
+                  type: string
+                  format: date
+                  example: "2025-02-01"
+                current_plan:
+                  type: integer
+                  example: 30
+              required:
+                - habit_name
+                - user_id
+                - start_date
+                - current_plan
+
+      responses:
+        '200':
+          description: Успешное добавление
+        '404':
+          description: Не найден такой пользователь
+    get:
+      summary: Получение всех связей пользователь-привычка с датой и планами
+      responses:
+        '200':
+          description: успешный ответ со списком связей
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userHabit"
+        '404':
+          description: Данные не найдены
+    put:
+      summary: Изменение плана привычки у пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+                habit_id:
+                  type: integer
+                  example: 1
+                current_plan:
+                  type: integer
+                  example: 1
+              required:
+                - user_id
+                - habit_id
+                - current_plan
+      responses:
+        '200':
+          description: Успешно изменен план
+        '404':
+          description: Пользователь не найден
+  /user_habits/{userId}:
+    get:
+      summary: Получение ифнормации о привычках пользователей по идентификатору
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Идентификатор пользователя
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Списко успешно получен
+          content:
+           application/json:
+             schema:
+               $ref: "#/components/schemas/userHabits"
+        '404':
+          description: Пользователь не найден
+  /user_habits/{userId}/{habitId}:
+    get:
+      summary: Возвращает информацию о конкретной привычке конкретного пользователя
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/habitId"
+      responses:
+        '200':
+          description: Данные получены успешно
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userHabit"
+    delete:
+      summary: Удаляет связь между пользователем и привычкой
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/habitId"
+      responses:
+        '200':
+          description: Успешное удаление
+        '404':
+          description: Не найдена связь
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -198,7 +331,44 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: идентификатор пользователя
+      schema:
+        type: integer
+        example: 1
+    habitId:
+      name: habitId
+      in: path
+      required: true
+      description: идентификатор привычки
+      schema:
+        type: integer
+        example: 1
   schemas:
+    userHabit:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        habit_id:
+          type: integer
+          example: 3
+        start_date:
+          type: string
+          format: date
+          example: "2025-02-01"
+        current_plan:
+          type: integer
+          example: 30
+    userHabits:
+      type: array
+      items:
+        $ref: "#/components/schemas/userHabit"
     habit:
       type: object
       properties:

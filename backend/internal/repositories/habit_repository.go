@@ -1,7 +1,6 @@
 ﻿package repositories
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"trackly-backend/internal/models"
 )
@@ -24,10 +23,10 @@ func NewHabitRepository(db *gorm.DB) *HabitRepository {
 }
 
 func (r *HabitRepository) CreateHabit(habit *models.Habit) error {
-	var existingHabit models.Habit
-	if err := r.db.Where("habit_name = ?", habit.HabitName).First(&existingHabit).Error; err == nil {
-		return fmt.Errorf("habit with name '%s' already exists", habit.HabitName)
-	}
+	///var existingHabit models.Habit
+	///if err := r.db.Where("habit_name = ?", habit.HabitName).First(&existingHabit).Error; err == nil {
+	///return fmt.Errorf("habit with name '%s' already exists", habit.HabitName)
+	///}
 
 	return r.db.Create(&habit).Error
 }
