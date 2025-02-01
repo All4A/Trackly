@@ -1,0 +1,230 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  version: 1.0.0
+  description: API для регистрации и входа пользователей с использованием JWT
+
+servers:
+  - url: http://localhost:8080
+    description: Production server
+
+paths:
+  /register:
+    post:
+      summary: Регистрация нового пользователя
+      description: Регистрирует нового пользователя и возвращает статус "ok"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: password123
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '400':
+          description: Неверные данные для регистрации
+        '409':
+          description: Пользователь с таким именем уже существует
+
+  /login:
+    post:
+      summary: Вход пользователя
+      description: Аутентифицирует пользователя и возвращает JWT токен
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: password123
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT токен для аутентификации
+        '400':
+          description: Неверные данные для входа
+        '401':
+          description: Неверный логин или пароль
+  /habits:
+    post:
+      summary: Создать новую привычку
+      description: Создает новую привычку для текущего пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                habit_name:
+                  type: string
+                  example: running
+                description:
+                  type: string
+                  example: smth interesting
+      responses:
+        '200':
+          description: Успешное добавление
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+        '409':
+          description: Такая привычка уже есть, выберите ее из списка
+        '500':
+          description: Что-то с соединением
+        '400':
+          description: Плохой запрос
+    get:
+      summary: Получить все привычки
+      description: Возвращает все привычки
+      responses:
+        '200':
+          description: Успешный ответ со списком привычек
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/habits"
+
+        '404':
+          description: Ничего не найдно
+
+    put:
+      summary: Обновление информации о привычке
+      description: Обновляет информацию о привычке
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/habit"
+      responses:
+        '200':
+          description: Информация о привычке успешно изменена
+        '404':
+          description: Такой привычки не существует
+        '500':
+          description: Что-то с соединением
+        '400':
+          description: Плохой запрос
+  /habits/{habitId}:
+    get:
+      summary: Получение привычки по идентификатору
+      parameters:
+        - name: habitId
+          in: path
+          required: true
+          description: Идентификатор привычки
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Успешный ответ с одной привычкой
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/habit"
+
+        '404':
+          description: Привычка не найдена
+    delete:
+      summary: Удаление привычки по идентификатору
+      parameters:
+        - name: habitId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Привычка успешно удаленна
+        '404':
+          description: Привычка не найдена
+
+
+
+
+
+
+
+
+
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    habit:
+      type: object
+      properties:
+        habit_id:
+          type: integer
+          example: 1
+        habit_name:
+          type: string
+          example: running
+        description:
+          type: string
+          example: something interesting
+      required:
+        - habit_id
+    habits:
+      type: array
+      items:
+        $ref: "#/components/schemas/habit"
+
+
+
+
+
+
+
+
+
+security:
+  - BearerAuth: []
