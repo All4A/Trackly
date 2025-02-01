@@ -2,10 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
-  margin-top: 1.75rem;
   position: fixed;
   left: 0;
-  top: 7%;
+  top: 90px;
   bottom: 0;
   width: 200px;
   padding: 1.5rem;
@@ -30,7 +29,7 @@
 
 .nav-item .icon {
   object-fit: contain;
-  width: 25px;
+  width: clamp(20px, 2.5vw, 25px);
   aspect-ratio: 1 / 1;
 }
 
