@@ -1,4 +1,5 @@
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
@@ -25,7 +26,7 @@ const NAV_ITEMS = [
   },
   {
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
-    label: "New hobbie",
+    label: "New Hobby",
     id: "new",
     path: "/new",
   },
@@ -58,32 +59,44 @@ const hobbies = [
 
 export default function Dashboard() {
   const currentLocation = useLocation();
+  const [activeNav, setActiveNav] = useState("dashboard");
+  const navigate = useNavigate(); // Инициализируем useNavigate
+
+  // Обработчик для кнопки "Log out"
+  const handleLogout = () => {
+    // Очистка данных, если необходимо (например, токены)
+    // localStorage.removeItem('authToken');
+
+    // Переход на страницу входа
+    navigate('/');
+  };
 
   return (
-    <div className="dashboard-container">
-      <Header />
-      <nav className="nav-sidebar">
-        {NAV_ITEMS.map(({ icon, label, id, path }) => (
-          <NavItem
-            key={id}
-            icon={icon}
-            label={label}
-            isActive={currentLocation.pathname === path}
-            to={path}
-          />
-        ))}
-      </nav>
-      <main className="main-content">
-        <div className="profile-section">
-          <section>
-            <div className="hobby-section-header">
-              <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
-              <button className="button-secondary">See All</button>
-            </div>
-            <HobbyGrid hobbies={hobbies} />
-          </section>
-        </div>
-      </main>
-    </div>
+      <div className="dashboard-container">
+        <Header />
+        <nav className="nav-sidebar">
+          {NAV_ITEMS.map(({ icon, label, id, path }) => (
+              <NavItem
+                  key={id}
+                  icon={icon}
+                  label={label}
+                  isActive={activeNav === id}
+                  onClick={() => id === "logout" ? handleLogout() : setActiveNav(id)} // Проверка для выхода
+                  to={path}
+              />
+          ))}
+        </nav>
+        <main className="main-content">
+          <div className="profile-section">
+            <section>
+              <div className="hobby-section-header">
+                <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
+                <button className="button-secondary">See All</button>
+              </div>
+              <HobbyGrid hobbies={hobbies} />
+            </section>
+          </div>
+        </main>
+      </div>
   );
 }

@@ -1,4 +1,5 @@
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,7 +41,7 @@ const NAV_ITEMS = [
   },
   {
     icon: `https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=${API_KEY}`,
-    label: "New hobbie",
+    label: "New Hobby",
     id: "new",
     path: "/new",
   },
@@ -146,6 +147,8 @@ const MonthlyHistoryChart = () => {
 
 export default function Statistics() {
   const currentLocation = useLocation();
+  const [activeNav, setActiveNav] = useState("statistics");
+  const navigate = useNavigate(); // Инициализируем useNavigate
 
   const personalStatistics = [
     {
@@ -168,6 +171,15 @@ export default function Statistics() {
     },
   ];
 
+  // Обработчик для кнопки "Log out"
+  const handleLogout = () => {
+    // Очистка данных, если необходимо (например, токены)
+    // localStorage.removeItem('authToken');
+
+    // Переход на страницу входа
+    navigate('/');
+  };
+
   const renderNavItems = () =>
     NAV_ITEMS.map(({ icon, label, id, path }) => (
       <NavItem
@@ -176,43 +188,44 @@ export default function Statistics() {
         label={label}
         isActive={currentLocation.pathname === path}
         to={path}
+        onClick={() => id === "logout" ? handleLogout() : setActiveNav(id)} // Проверка для выхода
       />
     ));
 
   return (
-    <div className="statistics-container">
-      <Header />
-      <nav className="nav-sidebar">
-        {renderNavItems()}
-      </nav>
-      <div className="flex-container">
-        <main className="main-content">
-          <div>
-            <h2>Personal Statistics</h2>
-            <div className="personal-statistics">
-              {personalStatistics.map((stat) => (
-                <StatisticItem
-                  key={stat.label}
-                  icon={stat.icon}
-                  label={stat.label}
-                  value={stat.value}
-                  unit={stat.unit}
-                />
-              ))}
-            </div>
-            <div className="flex-container">
-              <div className="weekly-activity">
-                <h2>Weekly Activity</h2>
-                <WeeklyActivityChart />
+      <div className="statistics-container">
+        <Header />
+        <nav className="nav-sidebar">
+          {renderNavItems()}
+        </nav>
+        <div className="flex-container">
+          <main className="main-content">
+            <div>
+              <h2>Personal Statistics</h2>
+              <div className="personal-statistics">
+                {personalStatistics.map((stat) => (
+                  <StatisticItem
+                    key={stat.label}
+                    icon={stat.icon}
+                    label={stat.label}
+                    value={stat.value}
+                    unit={stat.unit}
+                  />
+                ))}
               </div>
-              <div className="monthly-history">
-                <h2 className="content-header">Monthly History</h2>
-                <MonthlyHistoryChart />
+              <div className="flex-container">
+                <div className="weekly-activity">
+                  <h2>Weekly Activity</h2>
+                  <WeeklyActivityChart />
+                </div>
+                <div className="monthly-history">
+                  <h2 className="content-header">Monthly History</h2>
+                  <MonthlyHistoryChart />
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
   );
 }

@@ -11,7 +11,7 @@ export default function SearchBar() {
         className="search-icon"
       />
       <label htmlFor="searchInput" className="sr-only">
-        Search
+
       </label>
       <input
         id="searchInput"
