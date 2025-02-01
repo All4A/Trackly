@@ -1,0 +1,60 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 4rem;
+  width: 94%;
+  margin: 0 auto;
+  background-color: white;
+  position: fixed;
+  z-index: 1;
+}
+
+.header .logo-container {
+  display: flex;
+  gap: 1.25rem;
+  white-space: nowrap;
+  color: #475569;
+}
+
+.header .logo-container .logo-text {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.header .logo-container img {
+  object-fit: contain;
+  width: 33px;
+  height: 33px;
+}
+
+.header .overview {
+  flex-grow: 1;
+  text-align: left;
+  margin-left: clamp(5%, 8vw, 10%);
+  font-size: clamp(1.875rem, 2.5vw, 2.5rem);
+  font-weight: 600;
+}
+
+.header .actions {
+  display: flex;
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: center;
+}
+
+.header .actions .search-bar {
+  margin-right: 1rem;
+}
+
+.header .actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header .actions button img {
+  width: clamp(30px, 4vw, 50px);
+  height: auto;
+}
