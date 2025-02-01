@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="445f3028-1201-49bc-8d68-6eacb46060d2" name="Changes" comment="" />
+    <list default="true" id="445f3028-1201-49bc-8d68-6eacb46060d2" name="Changes" comment="Account Page, New Hobby Page, Log Out">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +40,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "front__limosha__dev",
     "last_opened_file_path": "D:/Projects/WebStormProjects",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -64,10 +68,35 @@
       <updated>1738365521438</updated>
       <workItem from="1738365522658" duration="335000" />
       <workItem from="1738415716010" duration="689000" />
+      <workItem from="1738416430271" duration="577000" />
     </task>
+    <task id="LOCAL-00001" summary="Account Page, New Hobby Page, Log Out">
+      <option name="closed" value="true" />
+      <created>1738416638988</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1738416638988</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Account Page, New Hobby Page, Log Out" />
+    <option name="LAST_COMMIT_MESSAGE" value="Account Page, New Hobby Page, Log Out" />
   </component>
 </project>
