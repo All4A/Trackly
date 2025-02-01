@@ -10,6 +10,11 @@ import (
 	"trackly-backend/internal/repositories"
 )
 
+type Server struct {
+	*api.UserApi
+	*api.HabitsApi
+}
+
 func main() {
 	// Загрузка конфигурации
 	configFilePath := flag.String("configs", "", "Path to the configuration file")
@@ -32,8 +37,12 @@ func main() {
 
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
-	server := api.NewServer(userRepo)
+	userApi := api.NewUserApi(userRepo)
 
+	habitRepo := repositories.NewHabitRepository(database)
+	habitsApi := api.NewHabitsApi(habitRepo)
+
+	server := &Server{userApi, habitsApi}
 	// Регистрация эндпоинтов из OpenAPI
 	api.RegisterHandlers(e, server)
 
