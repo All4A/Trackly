@@ -18,32 +18,26 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: user123
-                password:
-                  type: string
-                  example: password123
-              required:
-                - username
-                - password
+              $ref: "#/components/schemas/RegisterRequest"
       responses:
         '200':
           description: Успешная регистрация
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
+                $ref: "#/components/schemas/RegisterResponse"
         '400':
           description: Неверные данные для регистрации
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '409':
           description: Пользователь с таким именем уже существует
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /login:
     post:
@@ -54,32 +48,26 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: user123
-                password:
-                  type: string
-                  example: password123
-              required:
-                - username
-                - password
+              $ref: "#/components/schemas/LoginRequest"
       responses:
         '200':
           description: Успешный вход
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: JWT токен для аутентификации
+                $ref: "#/components/schemas/LoginResponse"
         '400':
           description: Неверные данные для входа
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '401':
           description: Неверный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:
@@ -95,12 +83,14 @@ components:
       required:
         - username
         - password
+
     RegisterResponse:
       type: object
       properties:
         status:
           type: string
           example: ok
+
     LoginRequest:
       type: object
       properties:
@@ -114,24 +104,24 @@ components:
         - username
         - password
 
-      LoginResponse:
-        type: object
-        properties:
-          token:
-            type: string
-            description: JWT токен для аутентификации
-            example: "your.jwt.token"
-        required:
-          - token
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT токен для аутентификации
+          example: "your.jwt.token"
+      required:
+        - token
 
-      ErrorResponse:
-        type: object
-        properties:
-          error:
-            type: string
-            example: "Invalid username or password"
-        required:
-          - error
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid username or password"
+      required:
+        - error
   securitySchemes:
     BearerAuth:
       type: http

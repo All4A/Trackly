@@ -2,8 +2,7 @@ package api
 
 import (
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"trackly-backend/internal/auth" // Импорт пакета auth
+	"trackly-backend/internal/auth"
 	"trackly-backend/internal/models"
 	"trackly-backend/internal/repositories"
 )
@@ -28,15 +27,15 @@ func (s *Server) PostLogin(ctx echo.Context) error {
 	}
 
 	user, err := s.userRepo.FindUserByUsername(loginData.Username)
-	if err != nil || user.Password != loginData.Password {
+	if err != nil {
 		return ctx.JSON(401, map[string]string{"error": "Invalid username or password"})
 	}
 
 	if err = auth.CheckPassword(user.Password, loginData.Password); err != nil {
-		return ctx.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
+		return ctx.JSON(401, map[string]string{"error": "Invalid username or password"})
 	}
 
-	token, err := auth.GenerateToken("username", []byte(s.jwtSecret))
+	token, err := auth.GenerateToken(user.Username, []byte(s.jwtSecret))
 	if err != nil {
 		return ctx.JSON(500, map[string]string{"error": err.Error()})
 	}
@@ -47,7 +46,7 @@ func (s *Server) PostLogin(ctx echo.Context) error {
 func (s *Server) PostRegister(ctx echo.Context) error {
 	var user models.User
 	if err := ctx.Bind(&user); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		return ctx.JSON(400, map[string]string{"error": "Invalid request payload"})
 	}
 
 	hashedPassword, err := auth.HashPassword(user.Password)
