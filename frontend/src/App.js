@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Statistics from './components/Statistics/Statistics'
 import EditProfileForm from "./components/Accounts/EditProfileForm";
 import NewHobby from "./components/NewHobby/NewHobby"
+import Logout from "./components/Logout/Logout"
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/accounts"  element={<EditProfileForm />} />
         <Route path="/newhobby" element={<NewHobby />} />
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </Router>
   );
