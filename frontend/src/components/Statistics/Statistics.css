@@ -7,30 +7,6 @@
 .main-content {
   flex: 1;
   min-width: 0;
-  /* Prevents overflow issues */
-}
-
-/* Main Content Styling */
-.content-header {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2d3748;
-  margin-bottom: 1.5rem;
-}
-
-.divider {
-  height: 1px;
-  background-color: #e2e8f0;
-  margin-bottom: 1.5rem;
-}
-
-.chart-container {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 120px;
-  width: 100%;
-  margin-bottom: 2rem;
 }
 
 .chart-image {
@@ -40,22 +16,61 @@
   border-radius: 0;
 }
 
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
 .weekly-activity {
-  width: 42%;
+  flex: 1;
+  max-width: 45%;
 }
 
 .monthly-history {
-  width: 58%;
+  flex: 1;
+  max-width: 45%;
+  margin-left: 5%;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .flex-container {
-    flex-direction: column;
-  }
+.personal-statistics {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2%;
+  margin-left: 20%;
+}
 
-  .weekly-activity,
-  .monthly-history {
-    width: 100%;
-  }
+.statistic-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px 0;
+  width: 300px;
+}
+
+.icon-container {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+}
+
+.statistic-content p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+.statistic-content h3 {
+  font-size: 24px;
+  color: #333;
+  margin: 5px 0 0;
 }
