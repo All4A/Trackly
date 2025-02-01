@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Импортируем useNavigate
 import Header from "../Header";
 import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
@@ -8,7 +9,7 @@ const NAV_ITEMS = [
   {
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/cb23cfa1c40355add1d0253d24b1bdc4dc8b5e8d0307e00f856279f2f21800a4?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
     label: "Dashboard",
-    id: "dashboard"
+    id: "dashboard",
   },
   {
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/15b5cfc67820989891b23b4a3710555588e81195c9ddeab528597b09ac566868?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
@@ -22,7 +23,7 @@ const NAV_ITEMS = [
   },
   {
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
-    label: "New hobbie",
+    label: "New Hobby",
     id: "new"
   },
   {
@@ -53,32 +54,42 @@ const hobbies = [
 
 export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("dashboard");
+  const navigate = useNavigate(); // Инициализируем useNavigate
+
+  // Обработчик для кнопки "Log out"
+  const handleLogout = () => {
+    // Очистка данных, если необходимо (например, токены)
+    // localStorage.removeItem('authToken');
+
+    // Переход на страницу входа
+    navigate('/');
+  };
 
   return (
-    <div className="dashboard-container">
-      <Header />
-      <nav className="nav-sidebar">
-        {NAV_ITEMS.map(({ icon, label, id }) => (
-          <NavItem
-            key={id}
-            icon={icon}
-            label={label}
-            isActive={activeNav === id}
-            onClick={() => setActiveNav(id)}
-          />
-        ))}
-      </nav>
-      <main className="main-content">
-        <div className="profile-section">
-          <section>
-            <div className="hobby-section-header">
-              <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
-              <button className="button-secondary">See All</button>
-            </div>
-            <HobbyGrid hobbies={hobbies} />
-          </section>
-        </div>
-      </main>
-    </div>
+      <div className="dashboard-container">
+        <Header />
+        <nav className="nav-sidebar">
+          {NAV_ITEMS.map(({ icon, label, id }) => (
+              <NavItem
+                  key={id}
+                  icon={icon}
+                  label={label}
+                  isActive={activeNav === id}
+                  onClick={() => id === "logout" ? handleLogout() : setActiveNav(id)} // Проверка для выхода
+              />
+          ))}
+        </nav>
+        <main className="main-content">
+          <div className="profile-section">
+            <section>
+              <div className="hobby-section-header">
+                <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
+                <button className="button-secondary">See All</button>
+              </div>
+              <HobbyGrid hobbies={hobbies} />
+            </section>
+          </div>
+        </main>
+      </div>
   );
 }
