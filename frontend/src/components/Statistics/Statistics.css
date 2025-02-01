@@ -74,3 +74,18 @@
   color: #333;
   margin: 5px 0 0;
 }
+
+.dropdown-container {
+  margin-bottom: 20px;
+}
+
+.dropdown-container label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.dropdown-container select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
