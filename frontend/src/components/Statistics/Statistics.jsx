@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
@@ -148,7 +148,7 @@ const MonthlyHistoryChart = () => {
 
 export default function Statistics() {
   const currentLocation = useLocation();
-  // const [selectedHobby, setSelectedHobby] = useState("");
+  const [selectedHobby, setSelectedHobby] = useState("");
 
   const personalStatistics = [
     {
