@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 	"trackly-backend/internal/models"
 	"trackly-backend/internal/repositories"
 )
 
-type HServer struct {
+type HabitsApi struct {
 	habitRepo *repositories.HabitRepository
 }
 
-func NewHServer(habitRepo *repositories.HabitRepository) *HServer {
-	return &HServer{habitRepo: habitRepo}
+func NewHabitsApi(habitRepo *repositories.HabitRepository) *HabitsApi {
+	return &HabitsApi{habitRepo: habitRepo}
 }
 
-func (h *HServer) CreateHabit(ctx echo.Context) error {
+func (h *HabitsApi) PostHabits(ctx echo.Context) error {
 	var habit models.Habit
 
 	if err := ctx.Bind(&habit); err != nil {
@@ -25,7 +24,7 @@ func (h *HServer) CreateHabit(ctx echo.Context) error {
 	}
 	if err := h.habitRepo.CreateHabit(&habit); err != nil {
 
-		if err.Error() == fmt.Sprintf("habit with name '%s' already exists", habit.Name) {
+		if err.Error() == fmt.Sprintf("habit with name '%s' already exists", habit.HabitName) {
 			return ctx.JSON(409, map[string]string{"error": err.Error()})
 		}
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -33,7 +32,7 @@ func (h *HServer) CreateHabit(ctx echo.Context) error {
 	return ctx.JSON(200, habit)
 }
 
-func (h *HServer) GetHabits(ctx echo.Context) error {
+func (h *HabitsApi) GetHabits(ctx echo.Context) error {
 	habits, err := h.habitRepo.GetHabits()
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
@@ -41,8 +40,8 @@ func (h *HServer) GetHabits(ctx echo.Context) error {
 	return ctx.JSON(200, habits)
 }
 
-func (h *HServer) GetHabitById(ctx echo.Context) error {
-	habitId, _ := strconv.Atoi(ctx.Param("habitId"))
+func (h *HabitsApi) GetHabitsHabitId(ctx echo.Context, habitId int) error {
+	///habitId, _ := strconv.Atoi(ctx.Param("habitId"))
 
 	habit, err := h.habitRepo.GetHabitById(habitId)
 	if err != nil {
@@ -52,7 +51,7 @@ func (h *HServer) GetHabitById(ctx echo.Context) error {
 
 }
 
-func (h *HServer) UpdateHabit(ctx echo.Context) error {
+func (h *HabitsApi) PutHabits(ctx echo.Context) error {
 	var updatedHabit models.Habit
 
 	if err := ctx.Bind(&updatedHabit); err != nil {
@@ -64,7 +63,7 @@ func (h *HServer) UpdateHabit(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, map[string]string{"error": "habit does not exist"})
 	}
 
-	habit.Name = updatedHabit.Name
+	habit.HabitName = updatedHabit.HabitName
 	habit.Description = updatedHabit.Description
 
 	if err := h.habitRepo.UpdateHabit(habit); err != nil {
@@ -74,8 +73,8 @@ func (h *HServer) UpdateHabit(ctx echo.Context) error {
 	return ctx.JSON(200, habit)
 }
 
-func (h *HServer) DeleteHabitById(ctx echo.Context) error {
-	habitId, _ := strconv.Atoi(ctx.Param("habitId"))
+func (h *HabitsApi) DeleteHabitsHabitId(ctx echo.Context, habitId int) error {
+	///habitId, _ := strconv.Atoi(ctx.Param("habitId"))
 
 	if err := h.habitRepo.DeleteHabitById(habitId); err != nil {
 		return ctx.JSON(404, map[string]string{"error": err.Error()})

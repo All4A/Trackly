@@ -25,8 +25,8 @@ func NewHabitRepository(db *gorm.DB) *HabitRepository {
 
 func (r *HabitRepository) CreateHabit(habit *models.Habit) error {
 	var existingHabit models.Habit
-	if err := r.db.Where("name = ?", habit.Name).First(&existingHabit).Error; err == nil {
-		return fmt.Errorf("habit with name '%s' already exists", habit.Name)
+	if err := r.db.Where("habit_name = ?", habit.HabitName).First(&existingHabit).Error; err == nil {
+		return fmt.Errorf("habit with name '%s' already exists", habit.HabitName)
 	}
 
 	return r.db.Create(&habit).Error

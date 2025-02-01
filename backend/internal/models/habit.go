@@ -1,7 +1,7 @@
 ﻿package models
 
 type Habit struct {
-	ID          int    `gorm:"column:habit_id"`
-	Name        string `json:"name"`
+	ID          int    `json:"habit_id"`
+	HabitName   string `json:"habit_name"`
 	Description string `json:"description"`
 }

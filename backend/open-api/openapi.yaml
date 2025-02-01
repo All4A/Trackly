@@ -5,7 +5,7 @@ info:
   description: API для регистрации и входа пользователей с использованием JWT
 
 servers:
-  - url: http://api.example.com/v1
+  - url: http://localhost:8080
     description: Production server
 
 paths:
@@ -89,7 +89,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/habit"
+              type: object
+              properties:
+                habit_name:
+                  type: string
+                  example: running
+                description:
+                  type: string
+                  example: smth interesting
       responses:
         '200':
           description: Успешное добавление
@@ -129,20 +136,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                name:
-                  type: string
-                  example: newName
-                description:
-                  type: string
-                  example: newDescription
-              required:
-                - id
-                - name
+              $ref: "#/components/schemas/habit"
       responses:
         '200':
           description: Информация о привычке успешно изменена
@@ -208,14 +202,17 @@ components:
     habit:
       type: object
       properties:
-        name:
+        habit_id:
+          type: integer
+          example: 1
+        habit_name:
           type: string
           example: running
         description:
           type: string
           example: something interesting
       required:
-        - name
+        - habit_id
     habits:
       type: array
       items:
