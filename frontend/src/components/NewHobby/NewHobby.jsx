@@ -1,6 +1,5 @@
-import * as React from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";  // Импортируем useNavigate
+import { useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
 import "./NewHobby.css";
@@ -9,57 +8,55 @@ const NAV_ITEMS = [
     {
         icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/52cc0491a8a854a6223c8f6f5eb25a394220233d9af9b146381e516021a4f12a",
         label: "Dashboard",
-        id: "dashboard"
+        id: "dashboard",
+        path: "/dashboard",
     },
     {
         icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/15b5cfc67820989891b23b4a3710555588e81195c9ddeab528597b09ac566868?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
         label: "Accounts",
-        id: "accounts"
+        id: "accounts",
+        path: "/accounts",
     },
     {
         icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/d82d5239f0295efda0c2f5bd78e367a38f93516f37c11c855ee48db382a4ad19",
         label: "Statistics",
-        id: "statistics"
+        id: "statistics",
+        path: "/statistics",
     },
     {
         icon: 'https://cdn.builder.io/api/v1/image/assets/TEMP/33b7847917cb77fbfa74f853723d8686629940a0455e9a195b826fe74f7ab6c3?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85',
         label: 'New Hobby',
         id: 'new',
+        path: "/newhobby",
     },
     {
         icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/cb3b5e46aa2a248a1a76117e406f510ecf7e2f23b6cf1d96b9a1d498186831bb",
         label: "Log out",
-        id: "logout"
+        id: "logout",
+        path: "/logout"
     }
 ];
 
 function NewHobby() {
-    const [activeNav, setActiveNav] = useState("new");
+    const currentLocation = useLocation();
     const [notifications, setNotifications] = useState(false);
-    const navigate = useNavigate();  // Инициализируем useNavigate
 
-    // Обработчик для кнопки "Log out"
-    const handleLogout = () => {
-        // Очистка данных, если необходимо (например, токены)
-        // localStorage.removeItem('authToken');
-
-        // Переход на страницу входа
-        navigate('/');
-    };
+    const renderNavItems = () =>
+        NAV_ITEMS.map(({ icon, label, id, path }) => (
+          <NavItem
+            key={id}
+            icon={icon}
+            label={label}
+            isActive={currentLocation.pathname === path}
+            to={path}
+          />
+        ));
 
     return (
         <div className="hobby-container">
             <Header />
             <nav className="nav-sidebar">
-                {NAV_ITEMS.map(({ icon, label, id }) => (
-                    <NavItem
-                        key={id}
-                        icon={icon}
-                        label={label}
-                        isActive={activeNav === id}
-                        onClick={() => id === "logout" ? handleLogout() : setActiveNav(id)} // Добавляем проверку для "Log out"
-                    />
-                ))}
+                {renderNavItems()}
             </nav>
             <form className="new-hobby-form">
                 <div className="form-container">

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
@@ -28,7 +28,7 @@ const NAV_ITEMS = [
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/df1fb30faa992d3c769dff04787e1dae0d488fa050ac98dd3ea32c6eb922c904?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
     label: "New Hobby",
     id: "new",
-    path: "/new",
+    path: "/newhobby",
   },
   {
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/cb3b5e46aa2a248a1a76117e406f510ecf7e2f23b6cf1d96b9a1d498186831bb?placeholderIfAbsent=true&apiKey=83f09f65141e45b4bd5a3a0e1157ad85",
@@ -59,17 +59,6 @@ const hobbies = [
 
 export default function Dashboard() {
   const currentLocation = useLocation();
-  const [activeNav, setActiveNav] = useState("dashboard");
-  const navigate = useNavigate(); // Инициализируем useNavigate
-
-  // Обработчик для кнопки "Log out"
-  const handleLogout = () => {
-    // Очистка данных, если необходимо (например, токены)
-    // localStorage.removeItem('authToken');
-
-    // Переход на страницу входа
-    navigate('/');
-  };
 
   return (
       <div className="dashboard-container">
@@ -80,8 +69,7 @@ export default function Dashboard() {
                   key={id}
                   icon={icon}
                   label={label}
-                  isActive={activeNav === id}
-                  onClick={() => id === "logout" ? handleLogout() : setActiveNav(id)} // Проверка для выхода
+                  isActive={currentLocation.pathname === path}
                   to={path}
               />
           ))}
