@@ -153,7 +153,7 @@ export default function Statistics() {
   const personalStatistics = [
     {
       icon: faStopwatch,
-      label: "Total hobbies time spent",
+      label: "Total time spent",
       value: 429,
       unit: "h",
     },
