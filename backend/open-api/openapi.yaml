@@ -113,7 +113,7 @@ paths:
           description: Аватар загружен
 
 
-  /api/hobbies:
+  /api/habits:
     get:
       tags:
         - Hobbies
@@ -150,7 +150,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Habit'
 
-  /api/hobbies/{habitId}:
+  /api/habits/{habitId}:
     parameters:
       - name: habitId
         in: path
@@ -187,7 +187,7 @@ paths:
         '200':
           description: Хобби обновлено
 
-  /api/hobbies/{habitId}/score:
+  /api/habits/{habitId}/score:
     parameters:
       - name: habitId
         in: path
@@ -209,7 +209,7 @@ paths:
       responses:
         '200':
           description: Время записано
-  /api/hobbies/{habitId}/statistic:
+  /api/habits/{habitId}/statistic:
     parameters:
       - name: habitId
         in: path
@@ -250,7 +250,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HabitStatisticResponse'
-  /api/hobbies/{habitId}/statistic/total:
+  /api/habits/{habitId}/statistic/total:
     parameters:
       - name: habitId
         in: path
