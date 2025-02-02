@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import SearchBar from "./SearchBar";
 import "./Header.css";
 
@@ -6,14 +7,17 @@ export default function Header() {
   return (
     <header className="header">
       <div className="logo-container">
-        <div className="logo-text">
-          <img
-            loading="lazy"
-            src="trackly_logo.png"
-            alt="Trackly logo"
-          />
-          <div>Trackly</div>
-        </div>
+        {/* Use Link instead of <a> */}
+        <Link to="/dashboard" className="logo-link">
+          <div className="logo-text">
+            <img
+              loading="lazy"
+              src="trackly_logo.png"
+              alt="Trackly logo"
+            />
+            <div>Trackly</div>
+          </div>
+        </Link>
       </div>
       <div className="overview">Overview</div>
       <div className="actions">
