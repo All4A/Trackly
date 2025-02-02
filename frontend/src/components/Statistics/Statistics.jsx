@@ -171,7 +171,7 @@ export default function Statistics() {
     },
   ];
 
-  const hobbies = ["Reading", "Gaming", "Cooking", "Running"];
+  const hobbies = ["All hobbies", "Reading", "Gaming", "Cooking", "Running"];
 
   const renderNavItems = () =>
       NAV_ITEMS.map(({ icon, label, id, path }) => (
