@@ -70,7 +70,7 @@ function EditProfileForm() {
                     </div>
                     <div className="profile-content">
                         <img
-                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/ce0d48665b10e1164b1b12fb4c0cc8a2465298dce88b7c0bda3dc3cc7f7458e7?apiKey=83f09f65141e45b4bd5a3a0e1157ad85"
+                            src="profile_edit.png"
                             alt="" className="profile-picture"/>
                         <div className="profile-details">
                             <div className="input-group">
