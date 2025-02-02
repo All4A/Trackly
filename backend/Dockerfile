@@ -10,9 +10,12 @@ COPY go.mod go.sum ./
 # Загружаем зависимости
 RUN go mod download
 
-# Копируем исходный код
+RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+
 COPY . .
 
+# генерим код
+RUN oapi-codegen -generate types,server,client -package api /app/open-api/openapi.yaml > /app/internal/api/api.gen.go
 # Собираем приложение
 RUN CGO_ENABLED=0 GOOS=linux go build -o my-go-service ./cmd/main.go
 

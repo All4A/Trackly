@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/labstack/echo/v4"
+	_ "github.com/oapi-codegen/runtime"
 	"log"
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
