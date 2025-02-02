@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import "./Header.css";
 
@@ -7,7 +7,6 @@ export default function Header() {
   return (
     <header className="header">
       <div className="logo-container">
-        {/* Use Link instead of <a> */}
         <Link to="/dashboard" className="logo-link">
           <div className="logo-text">
             <img
@@ -36,13 +35,13 @@ export default function Header() {
             alt=""
           />
         </button>
-        <button aria-label="Profile" className="button-secondary">
+        <Link to="/accounts" aria-label="Profile" className="button-secondary">
           <img
             loading="lazy"
             src="profile.png"
-            alt=""
+            alt="Profile"
           />
-        </button>
+        </Link>
       </div>
     </header>
   );
