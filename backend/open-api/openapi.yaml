@@ -349,6 +349,25 @@ components:
         type: integer
         example: 1
   schemas:
+    habit:
+      type: object
+      properties:
+        habit_id:
+          type: integer
+          example: 1
+        habit_name:
+          type: string
+          example: running
+        description:
+          type: string
+          example: something interesting
+      required:
+        - habit_id
+    habits:
+      type: array
+      items:
+        $ref: "#/components/schemas/habit"
+
     userHabit:
       type: object
       properties:
@@ -369,26 +388,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/userHabit"
-  schemas:
-    habit:
-      type: object
-      properties:
-        habit_id:
-          type: integer
-          example: 1
-        habit_name:
-          type: string
-          example: running
-        description:
-          type: string
-          example: something interesting
-      required:
-        - habit_id
-    habits:
-      type: array
-      items:
-        $ref: "#/components/schemas/habit"
-
 
 
 
