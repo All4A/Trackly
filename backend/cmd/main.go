@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/labstack/echo/v4"
-	_ "github.com/oapi-codegen/runtime"
 	"log"
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
@@ -14,6 +13,7 @@ import (
 type Server struct {
 	*api.UserApi
 	*api.HabitsApi
+	*api.UserHabitsApi
 }
 
 func main() {
@@ -43,7 +43,12 @@ func main() {
 	habitRepo := repositories.NewHabitRepository(database)
 	habitsApi := api.NewHabitsApi(habitRepo)
 
-	server := &Server{userApi, habitsApi}
+
+	userHabitsRepo := repositories.NewHabitUserRepository(database)
+	userHabitsApi := api.NewUserHabitsApi(userHabitsRepo, habitRepo)
+
+	server := &Server{userApi, habitsApi, userHabitsApi}
+
 	// Регистрация эндпоинтов из OpenAPI
 	api.RegisterHandlers(e, server)
 
