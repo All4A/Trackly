@@ -20,6 +20,9 @@ func (h *HabitsApi) PostHabits(ctx echo.Context) error {
 	var habit models.Habit
 
 	if err := ctx.Bind(&habit); err != nil {
+
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+
 	}
 	if err := h.habitRepo.CreateHabit(&habit); err != nil {
 

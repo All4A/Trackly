@@ -369,6 +369,7 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/userHabit"
+  schemas:
     habit:
       type: object
       properties:

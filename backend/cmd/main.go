@@ -43,10 +43,12 @@ func main() {
 	habitRepo := repositories.NewHabitRepository(database)
 	habitsApi := api.NewHabitsApi(habitRepo)
 
+
 	userHabitsRepo := repositories.NewHabitUserRepository(database)
 	userHabitsApi := api.NewUserHabitsApi(userHabitsRepo, habitRepo)
 
 	server := &Server{userApi, habitsApi, userHabitsApi}
+
 	// Регистрация эндпоинтов из OpenAPI
 	api.RegisterHandlers(e, server)
 
