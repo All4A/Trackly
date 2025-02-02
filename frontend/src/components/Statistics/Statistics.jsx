@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../Header";
 import NavItem from "../NavItem";
@@ -6,17 +6,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStopwatch, faChartPie, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Legend, Title, Tooltip } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
+import HobbyDropdown from "../Statistics/HobbyDropdown";
 import "./Statistics.css";
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Legend,
-  Title,
-  Tooltip
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    Legend,
+    Title,
+    Tooltip
 );
 
 const API_KEY = "83f09f65141e45b4bd5a3a0e1157ad85";
@@ -54,17 +55,17 @@ const NAV_ITEMS = [
 ];
 
 const StatisticItem = ({ icon, label, value, unit }) => (
-  <div className="statistic-item">
-    <div className="icon-container">
-      <FontAwesomeIcon icon={icon} />
+    <div className="statistic-item">
+      <div className="icon-container">
+        <FontAwesomeIcon icon={icon} />
+      </div>
+      <div className="statistic-content">
+        <p>{label}</p>
+        <h3>
+          {value} {unit}
+        </h3>
+      </div>
     </div>
-    <div className="statistic-content">
-      <p>{label}</p>
-      <h3>
-        {value} {unit}
-      </h3>
-    </div>
-  </div>
 );
 
 const WeeklyActivityChart = () => {
@@ -147,6 +148,7 @@ const MonthlyHistoryChart = () => {
 
 export default function Statistics() {
   const currentLocation = useLocation();
+  const [selectedHobby, setSelectedHobby] = useState("");
 
   const personalStatistics = [
     {
@@ -169,16 +171,18 @@ export default function Statistics() {
     },
   ];
 
+  const hobbies = ["All hobbies", "Reading", "Gaming", "Cooking", "Running"];
+
   const renderNavItems = () =>
-    NAV_ITEMS.map(({ icon, label, id, path }) => (
-      <NavItem
-        key={id}
-        icon={icon}
-        label={label}
-        isActive={currentLocation.pathname === path}
-        to={path}
-      />
-    ));
+      NAV_ITEMS.map(({ icon, label, id, path }) => (
+          <NavItem
+              key={id}
+              icon={icon}
+              label={label}
+              isActive={currentLocation.pathname === path}
+              to={path}
+          />
+      ));
 
   return (
       <div className="statistics-container">
@@ -190,15 +194,16 @@ export default function Statistics() {
           <main className="main-content">
             <div>
               <h2>Personal Statistics</h2>
+              <HobbyDropdown hobbies={hobbies} onSelect={setSelectedHobby} />
               <div className="personal-statistics">
                 {personalStatistics.map((stat) => (
-                  <StatisticItem
-                    key={stat.label}
-                    icon={stat.icon}
-                    label={stat.label}
-                    value={stat.value}
-                    unit={stat.unit}
-                  />
+                    <StatisticItem
+                        key={stat.label}
+                        icon={stat.icon}
+                        label={stat.label}
+                        value={stat.value}
+                        unit={stat.unit}
+                    />
                 ))}
               </div>
               <div className="flex-container">
