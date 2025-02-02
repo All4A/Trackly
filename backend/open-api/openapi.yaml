@@ -128,7 +128,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Hobby'
+                  $ref: '#/components/schemas/Habit'
 
     post:
       tags:
@@ -141,18 +141,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewHobby'
+              $ref: '#/components/schemas/NewHabit'
       responses:
         '201':
           description: Хобби создано
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hobby'
+                $ref: '#/components/schemas/Habit'
 
-  /api/hobbies/{hobbyId}:
+  /api/hobbies/{habitId}:
     parameters:
-      - name: hobbyId
+      - name: habitId
         in: path
         required: true
         schema:
@@ -169,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hobby'
+                $ref: '#/components/schemas/Habit'
 
     put:
       tags:
@@ -182,14 +182,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HobbyUpdate'
+              $ref: '#/components/schemas/HabitUpdate'
       responses:
         '200':
           description: Хобби обновлено
 
-  /api/hobbies/{hobbyId}/score:
+  /api/hobbies/{habitId}/score:
     parameters:
-      - name: hobbyId
+      - name: habitId
         in: path
         required: true
         schema:
@@ -205,13 +205,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScoreHobby'
+              $ref: '#/components/schemas/ScoreHabit'
       responses:
         '200':
           description: Время записано
-  /api/hobbies/{hobbyId}/statistic:
+  /api/hobbies/{habitId}/statistic:
     parameters:
-      - name: hobbyId
+      - name: habitId
         in: path
         required: true
         schema:
@@ -249,10 +249,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HobbyStatisticResponse'
-  /api/hobbies/{hobbyId}/statistic/total:
+                $ref: '#/components/schemas/HabitStatisticResponse'
+  /api/hobbies/{habitId}/statistic/total:
     parameters:
-      - name: hobbyId
+      - name: habitId
         in: path
         required: true
         schema:
@@ -269,7 +269,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HobbyStatisticResponse'
+                $ref: '#/components/schemas/HabitStatisticResponse'
 
 components:
   securitySchemes:
@@ -334,8 +334,6 @@ components:
       properties:
         id:
           type: integer
-        name:
-          type: string
         username:
           type: string
         email:
@@ -369,7 +367,7 @@ components:
         city:
           type: string
 
-    Hobby:
+    Habit:
       type: object
       properties:
         id:
@@ -387,7 +385,7 @@ components:
           type: number
           description: "today in sec"
 
-    NewHobby:
+    NewHabit:
       type: object
       properties:
         name:
@@ -402,7 +400,7 @@ components:
         - name
         - plan
 
-    HobbyUpdate:
+    HabitUpdate:
       type: object
       properties:
         name:
@@ -426,7 +424,7 @@ components:
       type: string
       enum: [ distance, time, count ]
 
-    ScoreHobby:
+    ScoreHabit:
       type: object
       properties:
         date:
@@ -436,7 +434,7 @@ components:
           type: integer
           description: "тут крч мы передаем значение в минимальных единицах измерения, (метры, секунды, разы)"
 
-    HobbyStatisticResponse:
+    HabitStatisticResponse:
       type: object
       properties:
         groupBy:
@@ -454,7 +452,7 @@ components:
                 type: integer
                 description: "тут приходит значение в зависимости от типа"
 
-    HobbyStatisticTotalResponse:
+    HabitStatisticTotalResponse:
       type: object
       properties:
         planUnit:
