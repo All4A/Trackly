@@ -1,7 +1,7 @@
 .hobby-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.25rem;
+  gap: 1rem;
 }
 
 .hobby-card {
@@ -11,6 +11,11 @@
   background: linear-gradient(90deg, #3a47d8, #0065ff);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.hobby-card:hover {
+  transform: scale(1.05);
 }
 
 .hobby-content {
@@ -30,9 +35,9 @@
 }
 
 .hobby-title h2 {
+  color: white;
   font-size: 24px;
   margin: 0;
-  color: white;
 }
 
 .hobby-details {
@@ -41,13 +46,8 @@
   margin-bottom: 20px;
 }
 
-.hobby-details div {
-  text-align: center;
-}
-
 .hobby-details span {
   font-size: 14px;
-  margin-bottom: 5px;
 }
 
 .hobby-details p {
@@ -78,4 +78,57 @@
   height: 100%;
   background: #fff;
   transition: width 0.3s ease;
+}
+
+/* Модальное окно */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  text-align: center;
+}
+
+.modal input, .modal select {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.modal-buttons button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background-color: #0065ff;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background-color: #ccc;
 }
