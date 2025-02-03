@@ -1,7 +1,7 @@
 port: 8080
 jwt_secret: best-secret-in-the-world
 database:
-  host: postgres-trackly-bd
+  host: localhost
   port: 5432
   username: postgres
   password: postgres

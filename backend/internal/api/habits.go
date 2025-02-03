@@ -15,6 +15,8 @@ func NewHabitsApi(habitRepo *repositories.HabitRepository) *HabitsApi {
 }
 
 func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
+	uid := ctx.Get("user_id")
+	println(uid)
 	//TODO implement me
 	panic("implement me")
 }
