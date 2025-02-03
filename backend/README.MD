@@ -9,7 +9,7 @@ go clean -modcache
 
 Устанавливаем зависимости
 ```bash
-RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 ```
 Генерим коды
 ```bash
