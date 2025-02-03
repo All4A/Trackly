@@ -7,6 +7,7 @@ import (
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
 	"trackly-backend/internal/db"
+	"trackly-backend/internal/middleware"
 	"trackly-backend/internal/repositories"
 )
 
@@ -14,6 +15,8 @@ type Server struct {
 	*api.UserApi
 	*api.HabitsApi
 	*api.UserHabitsApi
+	*api.StatisticApi
+	*api.ProgressApi
 }
 
 func main() {
@@ -38,20 +41,46 @@ func main() {
 
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
-	userApi := api.NewUserApi(userRepo)
+	userApi := api.NewUserApi(userRepo, cfg)
 
 	habitRepo := repositories.NewHabitRepository(database)
 	habitsApi := api.NewHabitsApi(habitRepo)
 
-
 	userHabitsRepo := repositories.NewHabitUserRepository(database)
 	userHabitsApi := api.NewUserHabitsApi(userHabitsRepo, habitRepo)
+	statisticApi := api.NewStatisticApi()
+	progressApi := api.NewProgressApi()
+	server := &Server{userApi, habitsApi, userHabitsApi, statisticApi, progressApi}
 
-	server := &Server{userApi, habitsApi, userHabitsApi}
-
-	// Регистрация эндпоинтов из OpenAPI
-	api.RegisterHandlers(e, server)
+	RegisterHandlers(e, server, cfg.JwtSecret)
 
 	// Запуск сервера
 	e.Logger.Fatal(e.Start(":" + cfg.Port))
+}
+
+func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret string) {
+	// Public routes (no authentication required)
+	wrapper := api.ServerInterfaceWrapper{
+		Handler: si,
+	}
+
+	publicGroup := router.Group("")
+	publicGroup.POST("/api/auth/login", wrapper.PostApiAuthLogin)
+	publicGroup.POST("/api/auth/register", wrapper.PostApiAuthRegister)
+
+	// Protected routes (JWT authentication required)
+	protectedGroup := router.Group("")
+
+	protectedGroup.Use(middleware.JWTMiddleware([]byte(jwtSecret))) // Apply JWT middleware to protected routes
+
+	protectedGroup.GET("/api/habits", wrapper.GetApiHabits)
+	protectedGroup.POST("/api/habits", wrapper.PostApiHabits)
+	protectedGroup.GET("/api/habits/:habitId", wrapper.GetApiHabitsHabitId)
+	protectedGroup.PUT("/api/habits/:habitId", wrapper.PutApiHabitsHabitId)
+	protectedGroup.POST("/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
+	protectedGroup.GET("/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
+	protectedGroup.GET("/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
+	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
+	protectedGroup.GET("/api/users/profile", wrapper.GetApiUsersProfile)
+	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)
 }

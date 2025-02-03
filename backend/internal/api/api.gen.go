@@ -6,6 +6,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
@@ -16,126 +17,193 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
-// Habit defines model for habit.
+// Defines values for PlanUnit.
+const (
+	Count    PlanUnit = "count"
+	Distance PlanUnit = "distance"
+	Time     PlanUnit = "time"
+)
+
+// Defines values for StatisticGroupBy.
+const (
+	Day   StatisticGroupBy = "day"
+	Month StatisticGroupBy = "month"
+	Year  StatisticGroupBy = "year"
+)
+
+// Habit defines model for Habit.
 type Habit struct {
-	Description *string `json:"description,omitempty"`
-	HabitId     int     `json:"habit_id"`
-	HabitName   *string `json:"habit_name,omitempty"`
+	CurrentPlan   *Plan               `json:"currentPlan,omitempty"`
+	Id            *int                `json:"id,omitempty"`
+	Name          *string             `json:"name,omitempty"`
+	Notifications *bool               `json:"notifications,omitempty"`
+	StartDate     *openapi_types.Date `json:"startDate,omitempty"`
+
+	// TodayValue today in sec
+	TodayValue *float32 `json:"todayValue,omitempty"`
 }
 
-// Habits defines model for habits.
-type Habits = []Habit
+// HabitStatisticResponse defines model for HabitStatisticResponse.
+type HabitStatisticResponse struct {
+	GroupBy *StatisticGroupBy `json:"groupBy,omitempty"`
+	Period  *[]struct {
+		// Interval тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами
+		Interval *string `json:"interval,omitempty"`
 
-// UserHabit defines model for userHabit.
-type UserHabit struct {
-	CurrentPlan *int                `json:"current_plan,omitempty"`
-	HabitId     *int                `json:"habit_id,omitempty"`
-	StartDate   *openapi_types.Date `json:"start_date,omitempty"`
-	UserId      *int                `json:"user_id,omitempty"`
+		// Value тут приходит значение в зависимости от типа
+		Value *int `json:"value,omitempty"`
+	} `json:"period,omitempty"`
+	PlanUnit *PlanUnit `json:"planUnit,omitempty"`
 }
 
-// UserHabits defines model for userHabits.
-type UserHabits = []UserHabit
-
-// HabitId defines model for habitId.
-type HabitId = int
-
-// UserId defines model for userId.
-type UserId = int
-
-// PostHabitsJSONBody defines parameters for PostHabits.
-type PostHabitsJSONBody struct {
-	Description *string `json:"description,omitempty"`
-	HabitName   *string `json:"habit_name,omitempty"`
+// HabitUpdate defines model for HabitUpdate.
+type HabitUpdate struct {
+	Description   *string `json:"description,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	Notifications *bool   `json:"notifications,omitempty"`
+	Plan          *Plan   `json:"plan,omitempty"`
 }
 
-// PostLoginJSONBody defines parameters for PostLogin.
-type PostLoginJSONBody struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
+	Email    openapi_types.Email `json:"email"`
+	Password string              `json:"password"`
 }
 
-// PostRegisterJSONBody defines parameters for PostRegister.
-type PostRegisterJSONBody struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
+// LoginResponse defines model for LoginResponse.
+type LoginResponse struct {
+	Token *string `json:"token,omitempty"`
 }
 
-// PostUserHabitsJSONBody defines parameters for PostUserHabits.
-type PostUserHabitsJSONBody struct {
-	CurrentPlan int                `json:"current_plan"`
-	Description *string            `json:"description,omitempty"`
-	HabitName   string             `json:"habit_name"`
-	StartDate   openapi_types.Date `json:"start_date"`
-	UserId      int                `json:"user_id"`
+// NewHabit defines model for NewHabit.
+type NewHabit struct {
+	Description   *string `json:"description,omitempty"`
+	Name          string  `json:"name"`
+	Notifications *bool   `json:"notifications,omitempty"`
+	Plan          Plan    `json:"plan"`
 }
 
-// PutUserHabitsJSONBody defines parameters for PutUserHabits.
-type PutUserHabitsJSONBody struct {
-	CurrentPlan int `json:"current_plan"`
-	HabitId     int `json:"habit_id"`
-	UserId      int `json:"user_id"`
+// Plan defines model for Plan.
+type Plan struct {
+	// Goal тут крч мы передаем значение в зависимости от плана, в минимальных единицах измерения, (метры, секунды, разы)
+	Goal     *int      `json:"goal,omitempty"`
+	PlanUnit *PlanUnit `json:"planUnit,omitempty"`
 }
 
-// PostHabitsJSONRequestBody defines body for PostHabits for application/json ContentType.
-type PostHabitsJSONRequestBody PostHabitsJSONBody
+// PlanUnit defines model for PlanUnit.
+type PlanUnit string
 
-// PutHabitsJSONRequestBody defines body for PutHabits for application/json ContentType.
-type PutHabitsJSONRequestBody = Habit
+// RegisterRequest defines model for RegisterRequest.
+type RegisterRequest struct {
+	Age      *int                 `json:"age,omitempty"`
+	Email    *openapi_types.Email `json:"email,omitempty"`
+	Password *string              `json:"password,omitempty"`
+	Username *string              `json:"username,omitempty"`
+}
 
-// PostLoginJSONRequestBody defines body for PostLogin for application/json ContentType.
-type PostLoginJSONRequestBody PostLoginJSONBody
+// ScoreHabit defines model for ScoreHabit.
+type ScoreHabit struct {
+	Date *time.Time `json:"date,omitempty"`
 
-// PostRegisterJSONRequestBody defines body for PostRegister for application/json ContentType.
-type PostRegisterJSONRequestBody PostRegisterJSONBody
+	// Value тут крч мы передаем значение в минимальных единицах измерения, (метры, секунды, разы)
+	Value *int `json:"value,omitempty"`
+}
 
-// PostUserHabitsJSONRequestBody defines body for PostUserHabits for application/json ContentType.
-type PostUserHabitsJSONRequestBody PostUserHabitsJSONBody
+// StatisticGroupBy defines model for StatisticGroupBy.
+type StatisticGroupBy string
 
-// PutUserHabitsJSONRequestBody defines body for PutUserHabits for application/json ContentType.
-type PutUserHabitsJSONRequestBody PutUserHabitsJSONBody
+// UserProfile defines model for UserProfile.
+type UserProfile struct {
+	AvatarUrl   *string             `json:"avatarUrl,omitempty"`
+	City        *string             `json:"city,omitempty"`
+	Country     *string             `json:"country,omitempty"`
+	DateOfBirth *openapi_types.Date `json:"dateOfBirth,omitempty"`
+	Email       *string             `json:"email,omitempty"`
+	Username    *string             `json:"username,omitempty"`
+}
+
+// UserProfileUpdate defines model for UserProfileUpdate.
+type UserProfileUpdate struct {
+	City        *string             `json:"city,omitempty"`
+	Country     *string             `json:"country,omitempty"`
+	DateOfBirth *openapi_types.Date `json:"dateOfBirth,omitempty"`
+	Email       *string             `json:"email,omitempty"`
+	Name        *string             `json:"name,omitempty"`
+	Password    *string             `json:"password,omitempty"`
+	Username    *string             `json:"username,omitempty"`
+}
+
+// GetApiHabitsHabitIdStatisticParams defines parameters for GetApiHabitsHabitIdStatistic.
+type GetApiHabitsHabitIdStatisticParams struct {
+	DateFrom openapi_types.Date `form:"date-from" json:"date-from"`
+	DateTo   openapi_types.Date `form:"date-to" json:"date-to"`
+	GroupBy  StatisticGroupBy   `form:"group-by" json:"group-by"`
+}
+
+// PostApiUsersAvatarMultipartBody defines parameters for PostApiUsersAvatar.
+type PostApiUsersAvatarMultipartBody struct {
+	File *openapi_types.File `json:"file,omitempty"`
+}
+
+// PostApiAuthLoginJSONRequestBody defines body for PostApiAuthLogin for application/json ContentType.
+type PostApiAuthLoginJSONRequestBody = LoginRequest
+
+// PostApiAuthRegisterJSONRequestBody defines body for PostApiAuthRegister for application/json ContentType.
+type PostApiAuthRegisterJSONRequestBody = RegisterRequest
+
+// PostApiHabitsJSONRequestBody defines body for PostApiHabits for application/json ContentType.
+type PostApiHabitsJSONRequestBody = NewHabit
+
+// PutApiHabitsHabitIdJSONRequestBody defines body for PutApiHabitsHabitId for application/json ContentType.
+type PutApiHabitsHabitIdJSONRequestBody = HabitUpdate
+
+// PostApiHabitsHabitIdScoreJSONRequestBody defines body for PostApiHabitsHabitIdScore for application/json ContentType.
+type PostApiHabitsHabitIdScoreJSONRequestBody = ScoreHabit
+
+// PostApiUsersAvatarMultipartRequestBody defines body for PostApiUsersAvatar for multipart/form-data ContentType.
+type PostApiUsersAvatarMultipartRequestBody PostApiUsersAvatarMultipartBody
+
+// PutApiUsersProfileJSONRequestBody defines body for PutApiUsersProfile for application/json ContentType.
+type PutApiUsersProfileJSONRequestBody = UserProfileUpdate
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Получить все привычки
-	// (GET /habits)
-	GetHabits(ctx echo.Context) error
-	// Создать новую привычку
-	// (POST /habits)
-	PostHabits(ctx echo.Context) error
-	// Обновление информации о привычке
-	// (PUT /habits)
-	PutHabits(ctx echo.Context) error
-	// Удаление привычки по идентификатору
-	// (DELETE /habits/{habitId})
-	DeleteHabitsHabitId(ctx echo.Context, habitId int) error
-	// Получение привычки по идентификатору
-	// (GET /habits/{habitId})
-	GetHabitsHabitId(ctx echo.Context, habitId int) error
 	// Вход пользователя
-	// (POST /login)
-	PostLogin(ctx echo.Context) error
+	// (POST /api/auth/login)
+	PostApiAuthLogin(ctx echo.Context) error
 	// Регистрация нового пользователя
-	// (POST /register)
-	PostRegister(ctx echo.Context) error
-	// Получение всех связей пользователь-привычка с датой и планами
-	// (GET /user_habits)
-	GetUserHabits(ctx echo.Context) error
-	// Добавить привычку к пользователю
-	// (POST /user_habits)
-	PostUserHabits(ctx echo.Context) error
-	// Изменение плана привычки у пользователя
-	// (PUT /user_habits)
-	PutUserHabits(ctx echo.Context) error
-	// Получение ифнормации о привычках пользователей по идентификатору
-	// (GET /user_habits/{userId})
-	GetUserHabitsUserId(ctx echo.Context, userId int) error
-	// Удаляет связь между пользователем и привычкой
-	// (DELETE /user_habits/{userId}/{habitId})
-	DeleteUserHabitsUserIdHabitId(ctx echo.Context, userId UserId, habitId HabitId) error
-	// Возвращает информацию о конкретной привычке конкретного пользователя
-	// (GET /user_habits/{userId}/{habitId})
-	GetUserHabitsUserIdHabitId(ctx echo.Context, userId UserId, habitId HabitId) error
+	// (POST /api/auth/register)
+	PostApiAuthRegister(ctx echo.Context) error
+	// Получить список хобби пользователя
+	// (GET /api/habits)
+	GetApiHabits(ctx echo.Context) error
+	// Создать новое хобби
+	// (POST /api/habits)
+	PostApiHabits(ctx echo.Context) error
+	// Получить детали хобби
+	// (GET /api/habits/{habitId})
+	GetApiHabitsHabitId(ctx echo.Context, habitId int) error
+	// Обновить хобби
+	// (PUT /api/habits/{habitId})
+	PutApiHabitsHabitId(ctx echo.Context, habitId int) error
+	// Записать время, потраченное на хобби
+	// (POST /api/habits/{habitId}/score)
+	PostApiHabitsHabitIdScore(ctx echo.Context, habitId int) error
+	// Получение статустики
+	// (GET /api/habits/{habitId}/statistic)
+	GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticParams) error
+	// Получение статустики
+	// (GET /api/habits/{habitId}/statistic/total)
+	GetApiHabitsHabitIdStatisticTotal(ctx echo.Context, habitId int) error
+	// Загрузить аватар
+	// (POST /api/users/avatar)
+	PostApiUsersAvatar(ctx echo.Context) error
+	// Получить профиль пользователя
+	// (GET /api/users/profile)
+	GetApiUsersProfile(ctx echo.Context) error
+	// Обновить профиль пользователя
+	// (PUT /api/users/profile)
+	PutApiUsersProfile(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -143,41 +211,48 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// GetHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) GetHabits(ctx echo.Context) error {
+// PostApiAuthLogin converts echo context to params.
+func (w *ServerInterfaceWrapper) PostApiAuthLogin(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostApiAuthLogin(ctx)
+	return err
+}
+
+// PostApiAuthRegister converts echo context to params.
+func (w *ServerInterfaceWrapper) PostApiAuthRegister(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostApiAuthRegister(ctx)
+	return err
+}
+
+// GetApiHabits converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiHabits(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetHabits(ctx)
+	err = w.Handler.GetApiHabits(ctx)
 	return err
 }
 
-// PostHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) PostHabits(ctx echo.Context) error {
+// PostApiHabits converts echo context to params.
+func (w *ServerInterfaceWrapper) PostApiHabits(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostHabits(ctx)
+	err = w.Handler.PostApiHabits(ctx)
 	return err
 }
 
-// PutHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) PutHabits(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PutHabits(ctx)
-	return err
-}
-
-// DeleteHabitsHabitId converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteHabitsHabitId(ctx echo.Context) error {
+// GetApiHabitsHabitId converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiHabitsHabitId(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "habitId" -------------
 	var habitId int
@@ -190,12 +265,12 @@ func (w *ServerInterfaceWrapper) DeleteHabitsHabitId(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DeleteHabitsHabitId(ctx, habitId)
+	err = w.Handler.GetApiHabitsHabitId(ctx, habitId)
 	return err
 }
 
-// GetHabitsHabitId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetHabitsHabitId(ctx echo.Context) error {
+// PutApiHabitsHabitId converts echo context to params.
+func (w *ServerInterfaceWrapper) PutApiHabitsHabitId(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "habitId" -------------
 	var habitId int
@@ -208,96 +283,15 @@ func (w *ServerInterfaceWrapper) GetHabitsHabitId(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetHabitsHabitId(ctx, habitId)
+	err = w.Handler.PutApiHabitsHabitId(ctx, habitId)
 	return err
 }
 
-// PostLogin converts echo context to params.
-func (w *ServerInterfaceWrapper) PostLogin(ctx echo.Context) error {
+// PostApiHabitsHabitIdScore converts echo context to params.
+func (w *ServerInterfaceWrapper) PostApiHabitsHabitIdScore(ctx echo.Context) error {
 	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostLogin(ctx)
-	return err
-}
-
-// PostRegister converts echo context to params.
-func (w *ServerInterfaceWrapper) PostRegister(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostRegister(ctx)
-	return err
-}
-
-// GetUserHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) GetUserHabits(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetUserHabits(ctx)
-	return err
-}
-
-// PostUserHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) PostUserHabits(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostUserHabits(ctx)
-	return err
-}
-
-// PutUserHabits converts echo context to params.
-func (w *ServerInterfaceWrapper) PutUserHabits(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PutUserHabits(ctx)
-	return err
-}
-
-// GetUserHabitsUserId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetUserHabitsUserId(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "userId" -------------
-	var userId int
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", ctx.Param("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetUserHabitsUserId(ctx, userId)
-	return err
-}
-
-// DeleteUserHabitsUserIdHabitId converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteUserHabitsUserIdHabitId(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "userId" -------------
-	var userId UserId
-
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", ctx.Param("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userId: %s", err))
-	}
-
 	// ------------- Path parameter "habitId" -------------
-	var habitId HabitId
+	var habitId int
 
 	err = runtime.BindStyledParameterWithOptions("simple", "habitId", ctx.Param("habitId"), &habitId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
@@ -307,23 +301,56 @@ func (w *ServerInterfaceWrapper) DeleteUserHabitsUserIdHabitId(ctx echo.Context)
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DeleteUserHabitsUserIdHabitId(ctx, userId, habitId)
+	err = w.Handler.PostApiHabitsHabitIdScore(ctx, habitId)
 	return err
 }
 
-// GetUserHabitsUserIdHabitId converts echo context to params.
-func (w *ServerInterfaceWrapper) GetUserHabitsUserIdHabitId(ctx echo.Context) error {
+// GetApiHabitsHabitIdStatistic converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatistic(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "userId" -------------
-	var userId UserId
+	// ------------- Path parameter "habitId" -------------
+	var habitId int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "userId", ctx.Param("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "habitId", ctx.Param("habitId"), &habitId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter habitId: %s", err))
 	}
 
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetApiHabitsHabitIdStatisticParams
+	// ------------- Required query parameter "date-from" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "date-from", ctx.QueryParams(), &params.DateFrom)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter date-from: %s", err))
+	}
+
+	// ------------- Required query parameter "date-to" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "date-to", ctx.QueryParams(), &params.DateTo)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter date-to: %s", err))
+	}
+
+	// ------------- Required query parameter "group-by" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "group-by", ctx.QueryParams(), &params.GroupBy)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter group-by: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetApiHabitsHabitIdStatistic(ctx, habitId, params)
+	return err
+}
+
+// GetApiHabitsHabitIdStatisticTotal converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatisticTotal(ctx echo.Context) error {
+	var err error
 	// ------------- Path parameter "habitId" -------------
-	var habitId HabitId
+	var habitId int
 
 	err = runtime.BindStyledParameterWithOptions("simple", "habitId", ctx.Param("habitId"), &habitId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
@@ -333,7 +360,40 @@ func (w *ServerInterfaceWrapper) GetUserHabitsUserIdHabitId(ctx echo.Context) er
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetUserHabitsUserIdHabitId(ctx, userId, habitId)
+	err = w.Handler.GetApiHabitsHabitIdStatisticTotal(ctx, habitId)
+	return err
+}
+
+// PostApiUsersAvatar converts echo context to params.
+func (w *ServerInterfaceWrapper) PostApiUsersAvatar(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostApiUsersAvatar(ctx)
+	return err
+}
+
+// GetApiUsersProfile converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiUsersProfile(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetApiUsersProfile(ctx)
+	return err
+}
+
+// PutApiUsersProfile converts echo context to params.
+func (w *ServerInterfaceWrapper) PutApiUsersProfile(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PutApiUsersProfile(ctx)
 	return err
 }
 
@@ -365,18 +425,17 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/habits", wrapper.GetHabits)
-	router.POST(baseURL+"/habits", wrapper.PostHabits)
-	router.PUT(baseURL+"/habits", wrapper.PutHabits)
-	router.DELETE(baseURL+"/habits/:habitId", wrapper.DeleteHabitsHabitId)
-	router.GET(baseURL+"/habits/:habitId", wrapper.GetHabitsHabitId)
-	router.POST(baseURL+"/login", wrapper.PostLogin)
-	router.POST(baseURL+"/register", wrapper.PostRegister)
-	router.GET(baseURL+"/user_habits", wrapper.GetUserHabits)
-	router.POST(baseURL+"/user_habits", wrapper.PostUserHabits)
-	router.PUT(baseURL+"/user_habits", wrapper.PutUserHabits)
-	router.GET(baseURL+"/user_habits/:userId", wrapper.GetUserHabitsUserId)
-	router.DELETE(baseURL+"/user_habits/:userId/:habitId", wrapper.DeleteUserHabitsUserIdHabitId)
-	router.GET(baseURL+"/user_habits/:userId/:habitId", wrapper.GetUserHabitsUserIdHabitId)
+	router.POST(baseURL+"/api/auth/login", wrapper.PostApiAuthLogin)
+	router.POST(baseURL+"/api/auth/register", wrapper.PostApiAuthRegister)
+	router.GET(baseURL+"/api/habits", wrapper.GetApiHabits)
+	router.POST(baseURL+"/api/habits", wrapper.PostApiHabits)
+	router.GET(baseURL+"/api/habits/:habitId", wrapper.GetApiHabitsHabitId)
+	router.PUT(baseURL+"/api/habits/:habitId", wrapper.PutApiHabitsHabitId)
+	router.POST(baseURL+"/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
+	router.GET(baseURL+"/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
+	router.GET(baseURL+"/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
+	router.POST(baseURL+"/api/users/avatar", wrapper.PostApiUsersAvatar)
+	router.GET(baseURL+"/api/users/profile", wrapper.GetApiUsersProfile)
+	router.PUT(baseURL+"/api/users/profile", wrapper.PutApiUsersProfile)
 
 }

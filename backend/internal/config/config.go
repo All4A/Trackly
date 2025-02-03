@@ -8,9 +8,10 @@ import (
 
 // Config represents the application configuration
 type Config struct {
-	AppName  string   `yaml:"app_name"`
-	Port     string   `yaml:"port"`
-	Database DbConfig `yaml:"database"`
+	AppName   string   `yaml:"app_name"`
+	Port      string   `yaml:"port"`
+	Database  DbConfig `yaml:"database"`
+	JwtSecret string   `yaml:"jwt_secret"`
 }
 
 // DbConfig represents the database configuration
