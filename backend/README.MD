@@ -13,7 +13,7 @@ RUN go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 ```
 Генерим коды
 ```bash
-oapi-codegen -generate types,server -package api open-api/openapi.yaml > internal/api/api.gen.go
+oapi-codegen -generate client,types,server -package api open-api/openapi.yaml > internal/api/api.gen.go
 ```
 
 

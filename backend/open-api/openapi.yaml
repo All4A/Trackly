@@ -9,8 +9,10 @@ servers:
     description: Production server
 
 paths:
-  /register:
+  /api/auth/register:
     post:
+      tags:
+        - Auth
       summary: Регистрация нового пользователя
       description: Регистрирует нового пользователя и возвращает статус "ok"
       requestBody:
@@ -18,17 +20,8 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: user123
-                password:
-                  type: string
-                  example: password123
-              required:
-                - username
-                - password
+              $ref: '#/components/schemas/RegisterRequest'
+
       responses:
         '200':
           description: Успешная регистрация
@@ -45,8 +38,10 @@ paths:
         '409':
           description: Пользователь с таким именем уже существует
 
-  /login:
+  /api/auth/login:
     post:
+      tags:
+        - Auth
       summary: Вход пользователя
       description: Аутентифицирует пользователя и возвращает JWT токен
       requestBody:
@@ -54,276 +49,227 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: user123
-                password:
-                  type: string
-                  example: password123
-              required:
-                - username
-                - password
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: Успешный вход
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                    description: JWT токен для аутентификации
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Неверные данные для входа
         '401':
           description: Неверный логин или пароль
-  /habits:
-    post:
-      summary: Создать новую привычку
-      description: Создает новую привычку для текущего пользователя
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                habit_name:
-                  type: string
-                  example: running
-                description:
-                  type: string
-                  example: smth interesting
-      responses:
-        '200':
-          description: Успешное добавление
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
-        '409':
-          description: Такая привычка уже есть, выберите ее из списка
-        '500':
-          description: Что-то с соединением
-        '400':
-          description: Плохой запрос
+  /api/users/profile:
     get:
-      summary: Получить все привычки
-      description: Возвращает все привычки
+      security:
+        - BearerAuth: [ ]
+      tags:
+        - Users
+      summary: Получить профиль пользователя
       responses:
         '200':
-          description: Успешный ответ со списком привычек
+          description: Профиль пользователя
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/habits"
-
-        '404':
-          description: Ничего не найдно
+                $ref: '#/components/schemas/UserProfile'
 
     put:
-      summary: Обновление информации о привычке
-      description: Обновляет информацию о привычке
+      tags:
+        - Users
+      summary: Обновить профиль пользователя
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/habit"
+              $ref: '#/components/schemas/UserProfileUpdate'
       responses:
         '200':
-          description: Информация о привычке успешно изменена
-        '404':
-          description: Такой привычки не существует
-        '500':
-          description: Что-то с соединением
-        '400':
-          description: Плохой запрос
-  /habits/{habitId}:
-    get:
-      summary: Получение привычки по идентификатору
-      parameters:
-        - name: habitId
-          in: path
-          required: true
-          description: Идентификатор привычки
-          schema:
-            type: integer
-            example: 1
-      responses:
-        '200':
-          description: Успешный ответ с одной привычкой
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/habit"
+          description: Профиль обновлен
 
-        '404':
-          description: Привычка не найдена
-    delete:
-      summary: Удаление привычки по идентификатору
-      parameters:
-        - name: habitId
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-      responses:
-        '200':
-          description: Привычка успешно удаленна
-        '404':
-          description: Привычка не найдена
-  /user_habits:
+  /api/users/avatar:
     post:
-      summary: Добавить привычку к пользователю
-      description: Добавляет в user_habit связь привычки и пользователя с датой и планом
+      tags:
+        - Users
+      summary: Загрузить аватар
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Аватар загружен
+
+
+  /api/habits:
+    get:
+      tags:
+        - Hobbies
+      summary: Получить список хобби пользователя
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Список хобби
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Habit'
+
+    post:
+      tags:
+        - Hobbies
+      summary: Создать новое хобби
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                habit_name:
-                  type: string
-                  example: running
-                description:
-                  type: string
-                  example: smth interesting
-                user_id:
-                  type: integer
-                  example: 1
-                start_date:
-                  type: string
-                  format: date
-                  example: "2025-02-01"
-                current_plan:
-                  type: integer
-                  example: 30
-              required:
-                - habit_name
-                - user_id
-                - start_date
-                - current_plan
-
+              $ref: '#/components/schemas/NewHabit'
       responses:
-        '200':
-          description: Успешное добавление
-        '404':
-          description: Не найден такой пользователь
-    get:
-      summary: Получение всех связей пользователь-привычка с датой и планами
-      responses:
-        '200':
-          description: успешный ответ со списком связей
+        '201':
+          description: Хобби создано
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userHabit"
-        '404':
-          description: Данные не найдены
+                $ref: '#/components/schemas/Habit'
+
+  /api/habits/{habitId}:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Hobbies
+      summary: Получить детали хобби
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Детали хобби
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+
     put:
-      summary: Изменение плана привычки у пользователя
+      tags:
+        - Hobbies
+      summary: Обновить хобби
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                user_id:
-                  type: integer
-                  example: 1
-                habit_id:
-                  type: integer
-                  example: 1
-                current_plan:
-                  type: integer
-                  example: 1
-              required:
-                - user_id
-                - habit_id
-                - current_plan
+              $ref: '#/components/schemas/HabitUpdate'
       responses:
         '200':
-          description: Успешно изменен план
-        '404':
-          description: Пользователь не найден
-  /user_habits/{userId}:
+          description: Хобби обновлено
+
+  /api/habits/{habitId}/score:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Hobbies score
+      summary: Записать время, потраченное на хобби
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreHabit'
+      responses:
+        '200':
+          description: Время записано
+  /api/habits/{habitId}/statistic:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
     get:
-      summary: Получение ифнормации о привычках пользователей по идентификатору
+      tags:
+        - Hobbies statistic
+      summary: Получение статустики
+      security:
+        - BearerAuth: [ ]
       parameters:
-        - name: userId
-          in: path
+        - name: date-from
+          in: query
           required: true
-          description: Идентификатор пользователя
           schema:
-            type: integer
-            example: 1
+            type: string
+            format: date
+            example: "2017-01-01"
+        - name: date-to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "2017-01-01"
+        - name: group-by
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/StatisticGroupBy'
+
       responses:
         '200':
-          description: Списко успешно получен
-          content:
-           application/json:
-             schema:
-               $ref: "#/components/schemas/userHabits"
-        '404':
-          description: Пользователь не найден
-  /user_habits/{userId}/{habitId}:
-    get:
-      summary: Возвращает информацию о конкретной привычке конкретного пользователя
-      parameters:
-        - $ref: "#/components/parameters/userId"
-        - $ref: "#/components/parameters/habitId"
-      responses:
-        '200':
-          description: Данные получены успешно
+          description: Статистика по хобби за промежуток времени с групировкой
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userHabit"
-    delete:
-      summary: Удаляет связь между пользователем и привычкой
-      parameters:
-        - $ref: "#/components/parameters/userId"
-        - $ref: "#/components/parameters/habitId"
+                $ref: '#/components/schemas/HabitStatisticResponse'
+  /api/habits/{habitId}/statistic/total:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Hobbies statistic
+      summary: Получение статустики
+      security:
+        - BearerAuth: [ ]
       responses:
         '200':
-          description: Успешное удаление
-        '404':
-          description: Не найдена связь
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          description: Суммарная статистика хобби
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitStatisticTotalResponse'
 
 components:
   securitySchemes:
@@ -349,52 +295,173 @@ components:
         type: integer
         example: 1
   schemas:
-    habit:
+    LoginRequest:
       type: object
       properties:
-        habit_id:
-          type: integer
-          example: 1
-        habit_name:
+        email:
           type: string
-          example: running
-        description:
+          format: email
+        password:
           type: string
-          example: something interesting
+          format: password
       required:
-        - habit_id
-    habits:
-      type: array
-      items:
-        $ref: "#/components/schemas/habit"
+        - email
+        - password
 
-    userHabit:
+    LoginResponse:
       type: object
       properties:
-        user_id:
+        token:
+          type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        username:
+          type: string
+        age:
           type: integer
-          example: 2
-        habit_id:
-          type: integer
-          example: 3
-        start_date:
+
+    UserProfile:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        dateOfBirth:
           type: string
           format: date
-          example: "2025-02-01"
-        current_plan:
+        country:
+          type: string
+        city:
+          type: string
+        avatarUrl:
+          type: string
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        country:
+          type: string
+        city:
+          type: string
+
+    Habit:
+      type: object
+      properties:
+        id:
           type: integer
-          example: 30
-    userHabits:
-      type: array
-      items:
-        $ref: "#/components/schemas/userHabit"
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        currentPlan:
+          $ref: '#/components/schemas/Plan'
+        notifications:
+          type: boolean
+        todayValue:
+          type: number
+          description: "today in sec"
+
+    NewHabit:
+      type: object
+      properties:
+        name:
+          type: string
+        plan:
+          $ref: '#/components/schemas/Plan'
+        description:
+          type: string
+        notifications:
+          type: boolean
+      required:
+        - name
+        - plan
+
+    HabitUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        plan:
+          $ref: '#/components/schemas/Plan'
+        description:
+          type: string
+        notifications:
+          type: boolean
+
+    Plan:
+      type: object
+      properties:
+        planUnit:
+          $ref: '#/components/schemas/PlanUnit'
+        goal:
+          type: integer
+          description: "тут крч мы передаем значение в зависимости от плана, в минимальных единицах измерения, (метры, секунды, разы)"
+    PlanUnit:
+      type: string
+      enum: [ distance, time, count ]
+
+    ScoreHabit:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        value:
+          type: integer
+          description: "тут крч мы передаем значение в минимальных единицах измерения, (метры, секунды, разы)"
+
+    HabitStatisticResponse:
+      type: object
+      properties:
+        groupBy:
+          $ref: '#/components/schemas/StatisticGroupBy'
+        planUnit:
+          $ref: '#/components/schemas/PlanUnit'
+        period:
+          type: array
+          items:
+            properties:
+              interval:
+                type: string
+                description: "тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами"
+              value:
+                type: integer
+                description: "тут приходит значение в зависимости от типа"
+
+    HabitStatisticTotalResponse:
+      type: object
+      properties:
+        planUnit:
+          $ref: '#/components/schemas/PlanUnit'
+        total:
+          type: integer
+        averagePerDay:
+          type: integer
+
+    StatisticGroupBy:
+      type: string
+      enum: [ day, month, year ]
 
 
-
-
-
-
-
-
-security:
-  - BearerAuth: []
