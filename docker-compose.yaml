@@ -2,10 +2,45 @@ version: '3.7'
 
 services:
 
-  sample:
-    container_name: sample
+  front:
+    container_name: front
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+
+  postgres-trackly-bd:
+    image: postgres:13-alpine
+    container_name: postgres-trackly-bd
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trackly-db
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+
+  #   Сервис для вашего Go-приложения
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    depends_on:
+      - postgres-trackly-bd
+
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trackly-db
+
+# Настройка volumes и networks
+networks:
+  my-network:
+    driver: bridge
