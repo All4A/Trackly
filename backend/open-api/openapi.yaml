@@ -265,11 +265,11 @@ paths:
         - BearerAuth: [ ]
       responses:
         '200':
-          description: Статистика по хобби за промежуток времени с групировкой
+          description: Суммарная статистика хобби
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HabitStatisticResponse'
+                $ref: '#/components/schemas/HabitStatisticTotalResponse'
 
 components:
   securitySchemes:
