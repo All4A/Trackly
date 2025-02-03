@@ -10,8 +10,8 @@ const SignIn = () => {
     password: '',
   });
 
-  const apiClient = new ApiClient();
-  const authApi = new AuthApi();
+  const apiClient = new ApiClient("http://89.169.172.168:8080");
+  const authApi = new AuthApi(apiClient);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
