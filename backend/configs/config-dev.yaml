@@ -6,3 +6,11 @@ database:
   username: postgres
   password: postgres
   dbname: trackly-db
+
+minio:
+  port: ${MINIO_PORT:-8080}
+  endpoint: ${MINIO_ENDPOINT:-localhost:9000}
+  bucket_name: ${MINIO_BUCKET_NAME:-best-bucket}
+  root_user: ${MINIO_ROOT_USER:-root}
+  root_password: ${MINIO_ROOT_PASSWORD:-best-password}
+  use_ssl: ${MINIO_USE_SSL:-false}

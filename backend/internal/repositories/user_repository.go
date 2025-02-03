@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"trackly-backend/internal/db"
 	"trackly-backend/internal/models"
@@ -35,4 +36,13 @@ func withUserName(userName string) db.CommonScopeOption {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("email = ?", userName)
 	}
+}
+
+func (r *UserRepository) UpdateUserAvatar(userID string, avatarUUID string) error {
+	query := `UPDATE users SET avatar_id = $1 WHERE id = $2`
+	err := r.db.Exec(query, avatarUUID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update avatar for user %s: %w", userID, err)
+	}
+	return nil
 }
