@@ -9,7 +9,7 @@ const SignUp = () => {
     email: '',
     password: '',
     username: '',
-    date_of_birth: '', // This will store the date of birth
+    date_of_birth: '',
   });
 
   const [agreeTerms, setAgreeTerms] = useState(false);
