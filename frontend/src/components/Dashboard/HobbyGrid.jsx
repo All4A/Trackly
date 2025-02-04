@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+
+import ApiClient from '../../api-client/src/ApiClient';
+import HobbiesScoreApi from '../../api-client/src/api/HobbiesScoreApi';
+
 import "./styles/HobbyGrid.css";
 
 export default function HobbyGrid({ hobbies }) {
@@ -6,6 +10,14 @@ export default function HobbyGrid({ hobbies }) {
   const [selectedHobby, setSelectedHobby] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [unit, setUnit] = useState("km");
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
+  const hobbyScoreApi = new HobbiesScoreApi(apiClient);
+
+  const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
 
   useEffect(() => {
     setHobbiesState(hobbies);
@@ -20,28 +32,55 @@ export default function HobbyGrid({ hobbies }) {
   const openProgressForm = (hobby) => {
     setSelectedHobby(hobby);
     setInputValue("");
-    setUnit(hobby.currentPlan.planUnit === "distance" ? "km" : hobby.currentPlan.planUnit === "time" ? "min" : "times");
+    setUnit(
+      hobby.currentPlan.planUnit === "distance"
+        ? "km"
+        : hobby.currentPlan.planUnit === "time"
+        ? "min"
+        : "times"
+    );
   };
 
   const handleProgressSubmit = () => {
     if (!inputValue || isNaN(inputValue) || Number(inputValue) <= 0) return;
-
+  
     let progress = Number(inputValue);
-
-    setHobbiesState((prevHobbies) =>
-      prevHobbies.map((hobby) =>
-        hobby.id === selectedHobby.id
-          ? { ...hobby, todayValue: hobby.todayValue + progress }
-          : hobby
-      )
-    );
-
+  
+    const updatedHobbies = hobbiesState.map((hobby) => {
+      if (hobby.id === selectedHobby.id) {
+        const updatedHobby = {
+          ...hobby,
+          todayValue: hobby.todayValue + progress,
+        };
+  
+        hobbyScoreApi.apiHabitsHabitIdScorePost(
+          jwtToken,
+          updatedHobby.id,
+          {
+            date: new Date(),
+            value: updatedHobby.todayValue,
+          },
+          (error, data, response) => {
+            setLoading(false);
+            if (error) {
+              setError(error || "An error occurred during uploading hobby update.");
+            } else {
+              console.log("Hobby updated successfully.");
+            }
+          }
+        );
+  
+        return updatedHobby;
+      }
+      return hobby;
+    });
+  
+    setHobbiesState(updatedHobbies);
     setSelectedHobby(null);
   };
 
   return (
     <div className="hobby-grid">
-      {/* Render each hobby */}
       {hobbiesState.map((hobby) => {
         const { id, name, startDate, currentPlan, todayValue } = hobby;
         const { goal, planUnit } = currentPlan;
@@ -95,6 +134,7 @@ export default function HobbyGrid({ hobbies }) {
           </div>
         );
       })}
+
       {selectedHobby && (
         <div className="modal">
           <div className="modal-content">

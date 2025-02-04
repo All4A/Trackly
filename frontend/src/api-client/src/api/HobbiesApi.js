@@ -129,7 +129,7 @@ export default class HobbiesApi {
      * @param {module:model/HabitUpdate} habitUpdate 
      * @param {module:api/HobbiesApi~apiHabitsHabitIdPutCallback} callback The callback function, accepting three arguments: error, data, response
      */
-    apiHabitsHabitIdPut(habitId, habitUpdate, callback) {
+    apiHabitsHabitIdPut(jwtToken, habitId, habitUpdate, callback) {
       let postBody = habitUpdate;
       // verify the required parameter 'habitId' is set
       if (habitId === undefined || habitId === null) {
@@ -146,6 +146,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };
