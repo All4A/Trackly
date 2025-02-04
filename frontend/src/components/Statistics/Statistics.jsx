@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+
+import ApiClient from '../../api-client/src/ApiClient';
+import HobbiesApi from '../../api-client/src/api/HobbiesApi';
+
 import Header from "../Header";
 import NavItem from "../NavItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -71,15 +75,8 @@ const StatisticItem = ({ icon, label, value, unit }) => (
 
 const WeeklyActivityChart = () => {
   const data = {
-    labels: ['Sat', 'Sun', 'Mon', 'Tue'],
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [
-      {
-        label: 'Planned',
-        data: [45, 30, 50, 70],
-        backgroundColor: 'rgba(0, 105, 148, 0.6)',
-        borderColor: 'rgba(0, 105, 148, 1)',
-        borderWidth: 1,
-      },
       {
         label: 'Activity',
         data: [90, 60, 60, 90],
@@ -150,6 +147,9 @@ const MonthlyHistoryChart = () => {
 export default function Statistics() {
   const currentLocation = useLocation();
   const [selectedHobby, setSelectedHobby] = useState("");
+  const [hobbies, setHobbies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const personalStatistics = [
     {
@@ -172,7 +172,20 @@ export default function Statistics() {
     },
   ];
 
-  const hobbies = ["All hobbies", "Reading", "Gaming", "Cooking", "Running"];
+  const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
+  const hobbyApi = new HobbiesApi(apiClient);
+
+  useEffect(() => {
+    setLoading(true);
+    hobbyApi.apiHabitsGet(jwtToken, (error, data, response) => {
+      setLoading(false);
+      if (error) {
+        setError(error || 'An error occurred during downloading user hobbies.');
+      } else {
+        setHobbies(data);
+      }
+    });
+  }, [jwtToken]);
 
   const renderNavItems = () =>
       NAV_ITEMS.map(({ icon, label, id, path }) => (
@@ -186,40 +199,49 @@ export default function Statistics() {
       ));
 
   return (
-      <div className="statistics-container">
-        <Header />
-        <nav className="nav-sidebar">
-          {renderNavItems()}
-        </nav>
-        <div className="flex-container">
-          <main className="main-content">
-            <div>
-              <h2>Personal Statistics</h2>
-              <HobbyDropdown hobbies={hobbies} onSelect={setSelectedHobby} />
-              <div className="personal-statistics">
-                {personalStatistics.map((stat) => (
-                    <StatisticItem
-                        key={stat.label}
-                        icon={stat.icon}
-                        label={stat.label}
-                        value={stat.value}
-                        unit={stat.unit}
-                    />
-                ))}
+    <div className="statistics-container">
+      <Header />
+      <nav className="nav-sidebar">
+        {renderNavItems()}
+      </nav>
+      <div className="flex-container">
+        <main className="main-content">
+          <div>
+            <h2>Personal Statistics</h2>
+            {loading ? (
+              <p>Loading hobbies...</p>
+            ) : error ? (
+              <p>Error: {error}</p>
+            ) : (
+              <HobbyDropdown
+                hobbies={hobbies.map(item => item.name)}
+                onSelect={setSelectedHobby}
+              />
+            )}
+            <div className="personal-statistics">
+              {personalStatistics.map((stat) => (
+                  <StatisticItem
+                      key={stat.label}
+                      icon={stat.icon}
+                      label={stat.label}
+                      value={stat.value}
+                      unit={stat.unit}
+                  />
+              ))}
+            </div>
+            <div className="flex-container">
+              <div className="weekly-activity">
+                <h2>Weekly Activity</h2>
+                <WeeklyActivityChart />
               </div>
-              <div className="flex-container">
-                <div className="weekly-activity">
-                  <h2>Weekly Activity</h2>
-                  <WeeklyActivityChart />
-                </div>
-                <div className="monthly-history">
-                  <h2 className="content-header">Monthly History</h2>
-                  <MonthlyHistoryChart />
-                </div>
+              <div className="monthly-history">
+                <h2 className="content-header">Monthly History</h2>
+                <MonthlyHistoryChart />
               </div>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
+    </div>
   );
 }

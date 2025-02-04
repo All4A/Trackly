@@ -49,7 +49,7 @@ export default class HobbiesApi {
      * @param {module:api/HobbiesApi~apiHabitsGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link Array.<module:model/Habit>}
      */
-    apiHabitsGet(callback) {
+    apiHabitsGet(jwtToken, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -57,6 +57,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };
