@@ -214,7 +214,7 @@ export default function Statistics() {
               <p>Error: {error}</p>
             ) : (
               <HobbyDropdown
-                hobbies={hobbies.map(item => item.name)}
+                hobbies={['all hobbies'].concat(hobbies.map(item => item.name))}
                 onSelect={setSelectedHobby}
               />
             )}
