@@ -49,13 +49,6 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 			PlanUnit: (*PlanUnit)(planUnit),
 		}
 
-		///layout := "2006-01-02"
-
-		///startDate, err := time.Parse(layout, habit.StartDate)
-		//if err != nil {
-		//return ctx.JSON(500, map[string]string{"message": err.Error()})
-		//}
-
 		todayValue := new(float32)
 		*todayValue = 0
 
@@ -92,8 +85,6 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 	*todayValue = 0
 
 	t := time.Now()
-
-	//formatted := t.Format("2006-01-02")
 
 	habit1 := models.Habit{
 		HabitName:     habit.Name,
@@ -158,10 +149,6 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		Goal:     plan.Goal,
 		PlanUnit: (*PlanUnit)(planUnit),
 	}
-
-	//layout := "2006-01-02"
-
-	//startDate, err := time.Parse(layout, habit.StartDate)
 
 	todayValue := new(float32)
 	*todayValue = 0
