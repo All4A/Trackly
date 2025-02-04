@@ -12,6 +12,6 @@ type User struct {
 	DateOfBirth time.Time `json:"dateOfBirth"`
 	Country     string
 	City        string
-	AvatarId    uuid.UUID
+	AvatarId    *uuid.UUID
 	Password    string `json:"password"`
 }

@@ -147,7 +147,6 @@ type UserProfileUpdate struct {
 	Country     *string             `json:"country,omitempty"`
 	DateOfBirth *openapi_types.Date `json:"dateOfBirth,omitempty"`
 	Email       *string             `json:"email,omitempty"`
-	Name        *string             `json:"name,omitempty"`
 	Password    *string             `json:"password,omitempty"`
 	Username    *string             `json:"username,omitempty"`
 }
