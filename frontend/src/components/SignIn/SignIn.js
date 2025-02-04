@@ -38,7 +38,8 @@ const SignIn = () => {
         } else {
           setSuccess(true);
           console.log('Login successful:', data);
-          console.log(data.token);
+
+          localStorage.setItem('jwt-token', JSON.stringify(data.token));
           navigate('/dashboard');
         }
       }

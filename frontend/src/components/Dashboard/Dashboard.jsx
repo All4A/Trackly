@@ -5,6 +5,8 @@ import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
 import "./styles/Dashboard.css";
 
+const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
+
 const NAV_ITEMS = [
     {
         icon: "dashboard_active.png",

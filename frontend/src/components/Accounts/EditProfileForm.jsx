@@ -4,6 +4,8 @@ import Header from "../Header";
 import NavItem from "../NavItem";
 import "./EditProfileForm.css";
 
+const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
+
 const NAV_ITEMS = [
     {
         icon: "dashboard_inactive.png",

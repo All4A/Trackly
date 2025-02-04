@@ -20,6 +20,8 @@ ChartJS.register(
     Tooltip
 );
 
+const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
+
 const NAV_ITEMS = [
   {
       icon: "dashboard_inactive.png",

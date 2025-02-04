@@ -49,8 +49,20 @@ const SignUp = () => {
         if (error) {
           setError(error || 'An error occurred during registration.');
         } else {
-          setSuccess(true);
           console.log('Registration successful:', data);
+
+          authApi.apiAuthLoginPost(
+            {email: formData['email'], password: formData['password']}, (error, data, response) => {
+              if (error) {
+                setError(error || 'An error occurred during login.');
+              } else {
+                setSuccess(true);
+                console.log('Login successful:', data);
+                localStorage.setItem('jwt-token', JSON.stringify(data.token));
+              }
+            }
+          )
+
           navigate('/dashboard');
         }
       }
