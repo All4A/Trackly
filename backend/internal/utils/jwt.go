@@ -2,14 +2,13 @@ package utils
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"strconv"
 	"time"
 	"trackly-backend/internal/middleware"
 )
 
 func GenerateJwt(secret string, userId int) (*string, error) {
 	claims := &middleware.JWTClaims{
-		UserID: strconv.Itoa(userId),
+		UserID: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // Token expires in 24 hours
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

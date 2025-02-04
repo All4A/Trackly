@@ -5,15 +5,6 @@ import (
 	"trackly-backend/internal/models"
 )
 
-type HabitRepositoryInterface interface {
-	NewHabitRepository(db *gorm.DB) *HabitRepository
-	CreateHabit(habit *models.Habit) error
-	GetHabitById(id int) (*models.Habit, error)
-	DeleteHabitById(id int) error
-	UpdateHabit(habit *models.Habit) error
-	GetHabits() ([]*models.Habit, error)
-}
-
 type HabitRepository struct {
 	db *gorm.DB
 }
@@ -23,31 +14,25 @@ func NewHabitRepository(db *gorm.DB) *HabitRepository {
 }
 
 func (r *HabitRepository) CreateHabit(habit *models.Habit) error {
-	///var existingHabit models.Habit
-	///if err := r.db.Where("habit_name = ?", habit.HabitName).First(&existingHabit).Error; err == nil {
-	///return fmt.Errorf("habit with name '%s' already exists", habit.HabitName)
-	///}
 
 	return r.db.Create(&habit).Error
 }
 
-func (r *HabitRepository) GetHabits() ([]*models.Habit, error) {
+func (r *HabitRepository) GetHabitsByUserId(user_id int) ([]*models.Habit, error) {
 	var habits []*models.Habit
-	err := r.db.Find(&habits).Error
-	if err != nil {
+	if err := r.db.Where("user_id = ?", user_id).Find(&habits).Error; err != nil {
 		return nil, err
-
 	}
 	return habits, nil
 }
 
-func (r *HabitRepository) GetHabitById(id int) (*models.Habit, error) {
-
+func (r *HabitRepository) GetHabitById(id int, userId int) (*models.Habit, error) {
 	var habit models.Habit
 
-	if err := r.db.First(&habit, id).Error; err != nil {
+	if err := r.db.Where("id = ? AND user_id = ?", id, userId).First(&habit).Error; err != nil {
 		return nil, err
 	}
+
 	return &habit, nil
 }
 
