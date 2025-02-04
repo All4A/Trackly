@@ -14,7 +14,7 @@ const SignUp = () => {
 
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const apiClient = new ApiClient("http://89.169.172.168:8080");
+  const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
   const authApi = new AuthApi(apiClient);
 
   const handleChange = (e) => {
