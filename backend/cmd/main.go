@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/labstack/echo/v4"
 	"log"
@@ -41,6 +42,7 @@ func main() {
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
 	minio, err := db.NewMinioClient(cfg)
+	minio.InitMinio(context.Background(), cfg)
 	if err != nil {
 		log.Fatalf("Could not connect to S3: %v", err)
 	}

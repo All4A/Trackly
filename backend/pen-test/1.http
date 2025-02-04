@@ -1,0 +1,39 @@
+###
+
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "ars2@mail.ru",
+  "password": "123",
+  "username":"ars",
+  "age":5
+}
+
+###
+
+###
+
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ars2@mail.ru",
+  "password": "123"
+}
+
+###
+
+
+###
+
+POST http://localhost:8080/api/users/avatar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJ5b3VyLWFwcC1uYW1lIiwiZXhwIjoxNzM4NzQ4NTk2LCJpYXQiOjE3Mzg2NjIxOTZ9.FRy3LoGzd0vgR3JXPPzz9Q1AUFYcOKawADaUUPSHMBw
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="avatar"; filename="input.txt"
+
+< ./avatar.png
+
+###

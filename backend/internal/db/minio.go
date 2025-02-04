@@ -29,7 +29,6 @@ func (m *MinioClient) InitMinio(ctx context.Context, cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
-
 	if !exists {
 		log.Printf("Бакет %s не найден, создаем новый...", cfg.MinioConfig.BucketName)
 		err := m.Client.MakeBucket(ctx, cfg.MinioConfig.BucketName, minio.MakeBucketOptions{})

@@ -38,11 +38,20 @@ func withUserName(userName string) db.CommonScopeOption {
 	}
 }
 
-func (r *UserRepository) UpdateUserAvatar(userID string, avatarUUID string) error {
-	query := `UPDATE users SET avatar_id = $1 WHERE id = $2`
-	err := r.db.Exec(query, avatarUUID, userID)
-	if err != nil {
-		return fmt.Errorf("failed to update avatar for user %s: %w", userID, err)
+func (r *UserRepository) UpdateUserAvatar(userID int, avatarUUID string) error {
+	// Assuming `User` is your GORM model representing the `users` table
+	user := &models.User{ID: userID} // Assuming `ID` is the primary key field
+
+	// Update the avatar_id field
+	result := r.db.Model(user).Update("avatar_id", avatarUUID)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update avatar for user %d: %v", userID, result.Error)
 	}
+
+	// Check if any rows were affected (optional)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no user found with ID %d", userID)
+	}
+
 	return nil
 }

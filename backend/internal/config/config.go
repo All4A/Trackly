@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -35,10 +34,6 @@ type MinioConfig struct {
 }
 
 func LoadConfig(filePath string) (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
 	file, err := os.ReadFile(filePath)
 	if err != nil {

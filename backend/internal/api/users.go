@@ -111,12 +111,12 @@ func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {
 	}
 	log.Println("✅ Upload successful!")
 
-	userID, ok := ctx.Get("user_id").(string)
+	userID, ok := ctx.Get("user_id").(int)
 	if !ok {
 		log.Println("❌ user_id is missing or invalid!")
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
 	}
-	log.Printf("Updating user %s avatar to %s", userID, imageID)
+	log.Printf("Updating user %d avatar to %s", userID, imageID)
 
 	err = a.userRepo.UpdateUserAvatar(userID, imageID)
 	if err != nil {
