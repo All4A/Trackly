@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {useLocation} from "react-router-dom";
+
+import ApiClient from '../../api-client/src/ApiClient';
+import HobbiesApi from '../../api-client/src/api/HobbiesApi';
+
 import Header from "../Header";
 import NavItem from "../NavItem";
 import HobbyGrid from "./HobbyGrid";
 import "./styles/Dashboard.css";
-
-const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
 
 const NAV_ITEMS = [
     {
@@ -40,38 +42,29 @@ const NAV_ITEMS = [
     }
 ];
 
-const hobbies = [
-    {
-        id: 1,
-        name: "Football",
-        startDate: "29/01/2024",
-        currentPlan: "2 times/week",
-        todayTime: 2,
-        unit: "times",
-        dailyGoal: 3
-    },
-    {
-        id: 2,
-        name: "Tennis",
-        startDate: "29/01/2024",
-        currentPlan: "5 hours/day",
-        todayTime: 2,
-        unit: "h",
-        dailyGoal: 5
-    },
-    {
-        id: 3,
-        name: "Running",
-        startDate: "29/01/2024",
-        currentPlan: "7 km/day",
-        todayTime: 1,
-        unit: "km",
-        dailyGoal: 7
-    },
-];
-
 export default function Dashboard() {
     const currentLocation = useLocation();
+
+    const [hobbies, setHobbies] = useState([]);
+    const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
+    const hobbyApi = new HobbiesApi(apiClient);
+
+    useEffect(() => {
+        setLoading(true);
+        hobbyApi.apiHabitsGet(jwtToken, (error, data, response) => {
+          setLoading(false);
+          if (error) {
+            setError(error || 'An error occurred during downloading user hobbies.');
+          } else {
+            setHobbies(data);
+          }
+        });
+    }, [jwtToken]);
 
     return (
         <div className="dashboard-container">
@@ -94,7 +87,7 @@ export default function Dashboard() {
                             <h2 className="text-2xl font-semibold text-slate-700">My Hobbies</h2>
                             <button className="button-secondary">See All</button>
                         </div>
-                        <HobbyGrid hobbies={hobbies || []}/>
+                        <HobbyGrid hobbies={hobbies}/>
                     </section>
                 </div>
             </main>
