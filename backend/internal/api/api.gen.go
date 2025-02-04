@@ -37,6 +37,12 @@ const (
 	Year  StatisticGroupBy = "year"
 )
 
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 // Habit defines model for Habit.
 type Habit struct {
 	CurrentPlan   *Plan               `json:"currentPlan,omitempty"`
@@ -1139,6 +1145,8 @@ type PostApiAuthLoginResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *LoginResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -1160,9 +1168,9 @@ func (r PostApiAuthLoginResponse) StatusCode() int {
 type PostApiAuthRegisterResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *struct {
-		Status *string `json:"status,omitempty"`
-	}
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON409      *ErrorResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -1604,6 +1612,20 @@ func ParsePostApiAuthLoginResponse(rsp *http.Response) (*PostApiAuthLoginRespons
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
 	}
 
 	return response, nil
@@ -1624,13 +1646,25 @@ func ParsePostApiAuthRegisterResponse(rsp *http.Response) (*PostApiAuthRegisterR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Status *string `json:"status,omitempty"`
-		}
+		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
