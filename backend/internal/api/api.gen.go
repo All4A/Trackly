@@ -47,12 +47,12 @@ type ErrorResponse struct {
 type Habit struct {
 	CurrentPlan   *Plan               `json:"currentPlan,omitempty"`
 	Id            *int                `json:"id,omitempty"`
-	Name          *string             `json:"name,omitempty"`
+	Name          string              `json:"name"`
 	Notifications *bool               `json:"notifications,omitempty"`
 	StartDate     *openapi_types.Date `json:"startDate,omitempty"`
 
 	// TodayValue today in sec
-	TodayValue *float32 `json:"todayValue,omitempty"`
+	TodayValue int `json:"todayValue"`
 }
 
 // HabitStatisticResponse defines model for HabitStatisticResponse.
@@ -122,10 +122,10 @@ type RegisterRequest struct {
 
 // ScoreHabit defines model for ScoreHabit.
 type ScoreHabit struct {
-	Date *time.Time `json:"date,omitempty"`
+	Date time.Time `json:"date"`
 
 	// Value тут крч мы передаем значение в минимальных единицах измерения, (метры, секунды, разы)
-	Value *int `json:"value,omitempty"`
+	Value int `json:"value"`
 }
 
 // StatisticGroupBy defines model for StatisticGroupBy.

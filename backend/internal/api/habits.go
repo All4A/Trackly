@@ -11,8 +11,9 @@ import (
 )
 
 type HabitsApi struct {
-	habitRepo *repositories.HabitRepository
-	planRepo  *repositories.PlanRepository
+	habitRepo     *repositories.HabitRepository
+	planRepo      *repositories.PlanRepository
+	statisticRepo *repositories.StatisticRepository
 }
 
 func NewHabitsApi(habitRepo *repositories.HabitRepository, planRepo *repositories.PlanRepository) *HabitsApi {
@@ -34,14 +35,8 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 	var response []Habit
 
 	for _, habit := range habits {
-		plans, err := h.planRepo.GetPlansByHabitId(habit.ID)
-		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
-				Code:    http.StatusInternalServerError,
-				Message: err.Error(),
-			})
-		}
-		plansArr := *plans
+
+		plansArr := habit.Plans
 		var plan models.Plan
 		if len(plansArr) > 0 {
 
@@ -55,14 +50,18 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 			Goal:     plan.Goal,
 			PlanUnit: (*PlanUnit)(planUnit),
 		}
+		todayValue := 0
 
-		todayValue := new(float32)
-		*todayValue = 0
+		for _, score := range habit.HabitScore {
+			if score.DateTime.Day() == time.Now().Day() {
+				todayValue += score.Value
+			}
+		}
 
 		responsHabit := Habit{
 			CurrentPlan:   &respPlan,
 			Id:            &habit.ID,
-			Name:          &habit.HabitName,
+			Name:          habit.HabitName,
 			Notifications: habit.Notifications,
 			StartDate:     &openapi_types.Date{habit.StartDate},
 			TodayValue:    todayValue,
@@ -120,10 +119,10 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 	habitResponse := Habit{
 		CurrentPlan:   &habit.Plan,
 		Id:            &habit1.ID,
-		Name:          &habit.Name,
+		Name:          habit.Name,
 		Notifications: habit.Notifications,
 		StartDate:     &openapi_types.Date{t},
-		TodayValue:    todayValue,
+		TodayValue:    0,
 	}
 
 	return ctx.JSON(http.StatusCreated, habitResponse)
@@ -141,15 +140,7 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		})
 	}
 
-	plans, err := h.planRepo.GetPlansByHabitId(habitId)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
-			Code:    http.StatusInternalServerError,
-			Message: err.Error(),
-		})
-	}
-
-	var plansArr = *plans
+	var plansArr = habit.Plans
 	var plan models.Plan
 	if len(plansArr) > 0 {
 
@@ -166,13 +157,18 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		PlanUnit: (*PlanUnit)(planUnit),
 	}
 
-	todayValue := new(float32)
-	*todayValue = 0
+	todayValue := 0
+
+	for _, score := range habit.HabitScore {
+		if score.DateTime.Day() == time.Now().Day() {
+			todayValue += score.Value
+		}
+	}
 
 	response := Habit{
 		CurrentPlan:   &planResp,
 		Id:            &habit.ID,
-		Name:          &habit.HabitName,
+		Name:          habit.HabitName,
 		Notifications: habit.Notifications,
 		StartDate:     &openapi_types.Date{habit.StartDate},
 		TodayValue:    todayValue,

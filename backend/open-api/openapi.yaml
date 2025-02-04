@@ -390,6 +390,9 @@ components:
 
     Habit:
       type: object
+      required:
+        - todayValue
+        - name
       properties:
         id:
           type: integer
@@ -403,7 +406,7 @@ components:
         notifications:
           type: boolean
         todayValue:
-          type: number
+          type: integer
           description: "today in sec"
 
     NewHabit:
@@ -447,6 +450,9 @@ components:
 
     ScoreHabit:
       type: object
+      required:
+        - date
+        - value
       properties:
         date:
           type: string
