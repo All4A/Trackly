@@ -33,3 +33,13 @@ ALTER TABLE plans
     ADD CONSTRAINT fk_plans_habit_id
         FOREIGN KEY (habit_id)
             REFERENCES habits(id);
+
+CREATE TABLE habit_scores(
+    id SERIAL PRIMARY KEY ,
+    habit_id int,
+    constraint hab_id foreign key (habit_id) references habits(id),
+    plan_id int,
+    constraint pl_id foreign key (plan_id) references plans(id),
+    date_time DATE,
+    value int
+);

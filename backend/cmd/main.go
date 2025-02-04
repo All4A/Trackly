@@ -52,8 +52,10 @@ func main() {
 	habitRepo := repositories.NewHabitRepository(database)
 	habitsApi := api.NewHabitsApi(habitRepo, planRepo)
 
+	statisitcRepo := repositories.NewStatisticRepository(database)
+
 	statisticApi := api.NewStatisticApi()
-	progressApi := api.NewProgressApi()
+	progressApi := api.NewProgressApi(statisitcRepo, habitRepo, planRepo)
 	server := &Server{userApi, habitsApi, statisticApi, progressApi}
 
 	RegisterHandlers(e, server, cfg.JwtSecret)
