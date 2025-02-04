@@ -26,7 +26,10 @@ type UserApi struct {
 func (a UserApi) PostApiAuthLogin(c echo.Context) error {
 	var req = LoginRequest{}
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return c.JSON(http.StatusBadRequest, ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
 	}
 
 	userFromDb, err := a.userRepo.FindUserByEmail(string(req.Email))
@@ -35,7 +38,10 @@ func (a UserApi) PostApiAuthLogin(c echo.Context) error {
 	}
 
 	if req.Password != userFromDb.Password {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
+		return c.JSON(http.StatusUnauthorized, ErrorResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "invalid credentials",
+		})
 	}
 
 	token, err := utils.GenerateJwt(a.cfg.JwtSecret, userFromDb.ID)
@@ -60,7 +66,7 @@ func (a UserApi) PostApiAuthRegister(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.JSON(200, "")
+	return ctx.JSON(http.StatusOK, "")
 }
 
 func (a UserApi) GetApiUsersProfile(ctx echo.Context) error {
@@ -124,7 +130,10 @@ func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {
 	file, err := ctx.FormFile("avatar")
 	if err != nil {
 		log.Printf("❌ Error retrieving file: %v", err)
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid file"})
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: "invalid file",
+		})
 	}
 
 	imageID := uuid.New().String()
@@ -133,19 +142,12 @@ func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {
 	src, err := file.Open()
 	if err != nil {
 		log.Printf("❌ Error opening file: %v", err)
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "unable to open file"})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "unable to open file",
+		})
 	}
 	defer src.Close()
-
-	if a.minioClient == nil {
-		log.Println("❌ MinIO client is nil!")
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "MinIO client is not initialized"})
-	}
-
-	if a.cfg.MinioConfig.BucketName == "" {
-		log.Println("❌ MinIO bucket name is empty!")
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "Bucket name is empty"})
-	}
 
 	log.Println("🚀 Uploading file to MinIO...")
 	log.Printf("Bucket: %s, ObjectName: %s", a.cfg.MinioConfig.BucketName, imageID)
@@ -153,21 +155,23 @@ func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {
 	_, err = a.minioClient.Client.PutObject(ctx.Request().Context(), a.cfg.MinioConfig.BucketName, imageID, src, file.Size, minio.PutObjectOptions{})
 	if err != nil {
 		log.Printf("❌ Error uploading avatar to MinIO: %v", err)
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "error uploading image to MinIO"})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "error uploading image to MinIO",
+		})
 	}
 	log.Println("✅ Upload successful!")
 
-	userID, ok := ctx.Get("user_id").(int)
-	if !ok {
-		log.Println("❌ user_id is missing or invalid!")
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
-	}
+	userID := ctx.Get("user_id").(int)
 	log.Printf("Updating user %d avatar to %s", userID, imageID)
 
 	err = a.userRepo.UpdateUserAvatar(userID, imageID)
 	if err != nil {
 		log.Printf("❌ Error updating user avatar in DB: %v", err)
-		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "error updating user avatar in DB"})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "error updating user avatar in DB",
+		})
 	}
 	log.Println("✅ User avatar updated successfully!")
 

@@ -28,16 +28,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
+                $ref: '#/components/schemas/ErrorResponse'
         '400':
           description: Неверные данные для регистрации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Пользователь с таким именем уже существует
-
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/login:
     post:
       tags:
@@ -59,8 +62,16 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Неверные данные для входа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Неверный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/users/profile:
     get:
       security:
@@ -377,6 +388,9 @@ components:
 
     Habit:
       type: object
+      required:
+        - todayValue
+        - name
       properties:
         id:
           type: integer
@@ -390,7 +404,7 @@ components:
         notifications:
           type: boolean
         todayValue:
-          type: number
+          type: integer
           description: "today in sec"
 
     NewHabit:
@@ -434,6 +448,9 @@ components:
 
     ScoreHabit:
       type: object
+      required:
+        - date
+        - value
       properties:
         date:
           type: string
@@ -473,5 +490,15 @@ components:
     StatisticGroupBy:
       type: string
       enum: [ day, month, year ]
+    ErrorResponse:
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
 
 

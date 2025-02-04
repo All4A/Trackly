@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"net/http"
 	"sort"
 	"time"
 	"trackly-backend/internal/models"
@@ -10,8 +11,9 @@ import (
 )
 
 type HabitsApi struct {
-	habitRepo *repositories.HabitRepository
-	planRepo  *repositories.PlanRepository
+	habitRepo     *repositories.HabitRepository
+	planRepo      *repositories.PlanRepository
+	statisticRepo *repositories.StatisticRepository
 }
 
 func NewHabitsApi(habitRepo *repositories.HabitRepository, planRepo *repositories.PlanRepository) *HabitsApi {
@@ -24,38 +26,42 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 
 	habits, err := h.habitRepo.GetHabitsByUserId(userId)
 	if err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	var response []Habit
 
 	for _, habit := range habits {
-		plans, err := h.planRepo.GetPlansByHabitId(habit.ID)
-		if err != nil {
-			return ctx.JSON(500, map[string]string{"message": err.Error()})
-		}
-		plans_arr := *plans
-		var plan models.Plan
-		if len(plans_arr) > 0 {
 
-			sort.Slice(plans_arr, func(i, j int) bool {
-				return plans_arr[i].ID > plans_arr[j].ID
+		plansArr := habit.Plans
+		var plan models.Plan
+		if len(plansArr) > 0 {
+
+			sort.Slice(plansArr, func(i, j int) bool {
+				return plansArr[i].ID > plansArr[j].ID
 			})
-			plan = plans_arr[0]
+			plan = plansArr[0]
 		}
 		planUnit := plan.PlanUnit
 		respPlan := Plan{
 			Goal:     plan.Goal,
 			PlanUnit: (*PlanUnit)(planUnit),
 		}
+		todayValue := 0
 
-		todayValue := new(float32)
-		*todayValue = 0
+		for _, score := range habit.HabitScore {
+			if score.DateTime.Day() == time.Now().Day() {
+				todayValue += score.Value
+			}
+		}
 
 		responsHabit := Habit{
 			CurrentPlan:   &respPlan,
 			Id:            &habit.ID,
-			Name:          &habit.HabitName,
+			Name:          habit.HabitName,
 			Notifications: habit.Notifications,
 			StartDate:     &openapi_types.Date{habit.StartDate},
 			TodayValue:    todayValue,
@@ -64,7 +70,7 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 		response = append(response, responsHabit)
 
 	}
-	return ctx.JSON(200, response)
+	return ctx.JSON(http.StatusOK, response)
 
 }
 
@@ -73,13 +79,13 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 	var habit NewHabit
 
 	if err := ctx.Bind(&habit); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
 	}
 
-	userId, ok := ctx.Get("user_id").(int)
-	if !ok {
-		return ctx.JSON(400, map[string]string{"message": "User ID не найден в контексте"})
-	}
+	userId := ctx.Get("user_id").(int)
 
 	todayValue := new(float32)
 	*todayValue = 0
@@ -104,19 +110,22 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 	habit1.Plans = append(habit1.Plans, plan)
 
 	if err := h.habitRepo.CreateHabit(&habit1); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	habitResponse := Habit{
 		CurrentPlan:   &habit.Plan,
 		Id:            &habit1.ID,
-		Name:          &habit.Name,
+		Name:          habit.Name,
 		Notifications: habit.Notifications,
 		StartDate:     &openapi_types.Date{t},
-		TodayValue:    todayValue,
+		TodayValue:    0,
 	}
 
-	return ctx.JSON(201, habitResponse)
+	return ctx.JSON(http.StatusCreated, habitResponse)
 
 }
 
@@ -125,22 +134,20 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 
 	habit, err := h.habitRepo.GetHabitById(habitId, userId)
 	if err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
-	}
-
-	plans, err := h.planRepo.GetPlansByHabitId(habitId)
-	if err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
-	}
-
-	var plans_arr = *plans
-	var plan models.Plan
-	if len(plans_arr) > 0 {
-
-		sort.Slice(plans_arr, func(i, j int) bool {
-			return plans_arr[i].ID > plans_arr[j].ID
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
 		})
-		plan = plans_arr[0]
+	}
+
+	var plansArr = habit.Plans
+	var plan models.Plan
+	if len(plansArr) > 0 {
+
+		sort.Slice(plansArr, func(i, j int) bool {
+			return plansArr[i].ID > plansArr[j].ID
+		})
+		plan = plansArr[0]
 	}
 
 	planUnit := plan.PlanUnit
@@ -150,19 +157,24 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		PlanUnit: (*PlanUnit)(planUnit),
 	}
 
-	todayValue := new(float32)
-	*todayValue = 0
+	todayValue := 0
+
+	for _, score := range habit.HabitScore {
+		if score.DateTime.Day() == time.Now().Day() {
+			todayValue += score.Value
+		}
+	}
 
 	response := Habit{
 		CurrentPlan:   &planResp,
 		Id:            &habit.ID,
-		Name:          &habit.HabitName,
+		Name:          habit.HabitName,
 		Notifications: habit.Notifications,
 		StartDate:     &openapi_types.Date{habit.StartDate},
 		TodayValue:    todayValue,
 	}
 
-	return ctx.JSON(200, response)
+	return ctx.JSON(http.StatusOK, response)
 
 }
 
@@ -173,17 +185,26 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 	var updateHabit HabitUpdate
 
 	if err := ctx.Bind(&updateHabit); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
 	}
 
 	habit, err := h.habitRepo.GetHabitById(habitId, userId)
 	if err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	plans, err := h.planRepo.GetPlansByHabitId(habitId)
 	if err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	var plans_arr = *plans
@@ -201,12 +222,14 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 	habit.Description = updateHabit.Description
 
 	if err := h.habitRepo.UpdateHabit(habit); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	if plan.Goal == updateHabit.Plan.Goal && plan.PlanUnit == (*models.PlanUnit)(updateHabit.Plan.PlanUnit) {
-
-		return ctx.JSON(200, map[string]string{"message": "OK"})
+		return ctx.JSON(http.StatusOK, map[string]string{"message": "OK"})
 	}
 
 	t := time.Now()
@@ -214,7 +237,10 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 	plan.CloseTime = &t
 
 	if err := h.planRepo.UpdatePlan(&plan); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
 	plan.Goal = updateHabit.Plan.Goal
@@ -228,9 +254,12 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 	plan.ID = 0
 
 	if err := h.planRepo.CreatePlan(&plan); err != nil {
-		return ctx.JSON(500, map[string]string{"message": err.Error()})
+		return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 
-	return ctx.JSON(200, map[string]string{"message": "OK"})
+	return ctx.JSON(http.StatusOK, map[string]string{"message": "OK"})
 
 }
