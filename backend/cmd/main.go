@@ -14,7 +14,6 @@ import (
 type Server struct {
 	*api.UserApi
 	*api.HabitsApi
-	*api.UserHabitsApi
 	*api.StatisticApi
 	*api.ProgressApi
 }
@@ -43,14 +42,14 @@ func main() {
 	userRepo := repositories.NewUserRepository(database)
 	userApi := api.NewUserApi(userRepo, cfg)
 
-	habitRepo := repositories.NewHabitRepository(database)
-	habitsApi := api.NewHabitsApi(habitRepo)
+	planRepo := repositories.NewPlanRepository(database)
 
-	userHabitsRepo := repositories.NewHabitUserRepository(database)
-	userHabitsApi := api.NewUserHabitsApi(userHabitsRepo, habitRepo)
+	habitRepo := repositories.NewHabitRepository(database)
+	habitsApi := api.NewHabitsApi(habitRepo, planRepo)
+
 	statisticApi := api.NewStatisticApi()
 	progressApi := api.NewProgressApi()
-	server := &Server{userApi, habitsApi, userHabitsApi, statisticApi, progressApi}
+	server := &Server{userApi, habitsApi, statisticApi, progressApi}
 
 	RegisterHandlers(e, server, cfg.JwtSecret)
 

@@ -1,8 +1,23 @@
+CREATE TABLE plans
+(
+    id       SERIAL PRIMARY KEY,
+    habit_id INT,
+    plan_unit TEXT,
+    goal INT,
+    start_time TEXT,
+    close_time TEXT
+);
 CREATE TABLE habits
 (
     id SERIAL PRIMARY KEY,
     habit_name TEXT NOT NULL,
-    description TEXT
+    description TEXT,
+    user_id int,
+    constraint us_id foreign key (user_id) references users(id),
+    start_date TEXT,
+    notifications BOOLEAN,
+    today_value int
+
 );
 CREATE TABLE user_habits
 (
@@ -14,3 +29,8 @@ CREATE TABLE user_habits
     start_date DATE,
     current_plan INT
 );
+
+ALTER TABLE plans
+    ADD CONSTRAINT fk_plans_habit_id
+        FOREIGN KEY (habit_id)
+            REFERENCES habits(id);

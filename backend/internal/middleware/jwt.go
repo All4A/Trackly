@@ -12,7 +12,7 @@ import (
 
 // JWTClaims is a custom struct to store JWT claims
 type JWTClaims struct {
-	UserID string `json:"user_id"`
+	UserID int `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
