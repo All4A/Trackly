@@ -4,8 +4,8 @@ CREATE TABLE plans
     habit_id INT,
     plan_unit TEXT,
     goal INT,
-    start_time TEXT,
-    close_time TEXT
+    start_time DATE,
+    close_time DATE
 );
 CREATE TABLE habits
 (
@@ -14,9 +14,8 @@ CREATE TABLE habits
     description TEXT,
     user_id int,
     constraint us_id foreign key (user_id) references users(id),
-    start_date TEXT,
-    notifications BOOLEAN,
-    today_value int
+    start_date DATE,
+    notifications BOOLEAN
 
 );
 CREATE TABLE user_habits

@@ -43,26 +43,29 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 			})
 			plan = plans_arr[0]
 		}
-		planUnit := PlanUnit(plan.PlanUnit)
+		planUnit := plan.PlanUnit
 		respPlan := Plan{
 			Goal:     plan.Goal,
-			PlanUnit: &planUnit,
+			PlanUnit: (*PlanUnit)(planUnit),
 		}
 
-		layout := "2006-01-02"
+		///layout := "2006-01-02"
 
-		startDate, err := time.Parse(layout, habit.StartDate)
-		if err != nil {
-			return ctx.JSON(500, map[string]string{"message": err.Error()})
-		}
+		///startDate, err := time.Parse(layout, habit.StartDate)
+		//if err != nil {
+		//return ctx.JSON(500, map[string]string{"message": err.Error()})
+		//}
+
+		todayValue := new(float32)
+		*todayValue = 0
 
 		responsHabit := Habit{
 			CurrentPlan:   &respPlan,
 			Id:            &habit.ID,
 			Name:          &habit.HabitName,
 			Notifications: habit.Notifications,
-			StartDate:     &openapi_types.Date{Time: startDate},
-			TodayValue:    habit.TodayValue,
+			StartDate:     &openapi_types.Date{habit.StartDate},
+			TodayValue:    todayValue,
 		}
 
 		response = append(response, responsHabit)
@@ -90,20 +93,19 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 
 	t := time.Now()
 
-	formatted := t.Format("2006-01-02")
+	//formatted := t.Format("2006-01-02")
 
 	habit1 := models.Habit{
 		HabitName:     habit.Name,
 		Description:   habit.Description,
 		UserId:        userId,
-		StartDate:     formatted,
+		StartDate:     t,
 		Notifications: habit.Notifications,
-		TodayValue:    todayValue,
 	}
 
 	plan := models.Plan{
 		HabitId:   habit1.ID,
-		PlanUnit:  string(*habit.Plan.PlanUnit),
+		PlanUnit:  (*models.PlanUnit)(habit.Plan.PlanUnit),
 		Goal:      habit.Plan.Goal,
 		StartTime: habit1.StartDate,
 	}
@@ -120,7 +122,7 @@ func (h *HabitsApi) PostApiHabits(ctx echo.Context) error {
 		Name:          &habit.Name,
 		Notifications: habit.Notifications,
 		StartDate:     &openapi_types.Date{t},
-		TodayValue:    habit1.TodayValue,
+		TodayValue:    todayValue,
 	}
 
 	return ctx.JSON(201, habitResponse)
@@ -150,24 +152,27 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		plan = plans_arr[0]
 	}
 
-	planUnit := PlanUnit(plan.PlanUnit)
+	planUnit := plan.PlanUnit
 
 	planResp := Plan{
 		Goal:     plan.Goal,
-		PlanUnit: &planUnit,
+		PlanUnit: (*PlanUnit)(planUnit),
 	}
 
-	layout := "2006-01-02"
+	//layout := "2006-01-02"
 
-	startDate, err := time.Parse(layout, habit.StartDate)
+	//startDate, err := time.Parse(layout, habit.StartDate)
+
+	todayValue := new(float32)
+	*todayValue = 0
 
 	response := Habit{
 		CurrentPlan:   &planResp,
 		Id:            &habit.ID,
 		Name:          &habit.HabitName,
 		Notifications: habit.Notifications,
-		StartDate:     &openapi_types.Date{startDate},
-		TodayValue:    habit.TodayValue,
+		StartDate:     &openapi_types.Date{habit.StartDate},
+		TodayValue:    todayValue,
 	}
 
 	return ctx.JSON(200, response)
@@ -189,6 +194,21 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		return ctx.JSON(500, map[string]string{"message": err.Error()})
 	}
 
+	plans, err := h.planRepo.GetPlansByHabitId(habitId)
+	if err != nil {
+		return ctx.JSON(500, map[string]string{"message": err.Error()})
+	}
+
+	var plans_arr = *plans
+	var plan models.Plan
+	if len(plans_arr) > 0 {
+
+		sort.Slice(plans_arr, func(i, j int) bool {
+			return plans_arr[i].ID > plans_arr[j].ID
+		})
+		plan = plans_arr[0]
+	}
+
 	habit.HabitName = *updateHabit.Name
 	habit.Notifications = updateHabit.Notifications
 	habit.Description = updateHabit.Description
@@ -197,16 +217,28 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 		return ctx.JSON(500, map[string]string{"message": err.Error()})
 	}
 
-	var plan models.Plan
+	if plan.Goal == updateHabit.Plan.Goal && plan.PlanUnit == (*models.PlanUnit)(updateHabit.Plan.PlanUnit) {
 
-	plan.Goal = updateHabit.Plan.Goal
-	plan.PlanUnit = string(*updateHabit.Plan.PlanUnit)
-	plan.HabitId = habitId
+		return ctx.JSON(200, map[string]string{"message": "OK"})
+	}
 
 	t := time.Now()
-	formatted := t.Format("2006-01-02")
 
-	plan.StartTime = formatted
+	plan.CloseTime = &t
+
+	if err := h.planRepo.UpdatePlan(&plan); err != nil {
+		return ctx.JSON(500, map[string]string{"message": err.Error()})
+	}
+
+	plan.Goal = updateHabit.Plan.Goal
+	plan.PlanUnit = (*models.PlanUnit)(updateHabit.Plan.PlanUnit)
+	plan.HabitId = habitId
+
+	timeStart := time.Now()
+
+	plan.StartTime = timeStart
+	plan.CloseTime = nil
+	plan.ID = 0
 
 	if err := h.planRepo.CreatePlan(&plan); err != nil {
 		return ctx.JSON(500, map[string]string{"message": err.Error()})
