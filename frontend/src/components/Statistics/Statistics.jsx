@@ -24,8 +24,6 @@ ChartJS.register(
     Tooltip
 );
 
-const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
-
 const NAV_ITEMS = [
   {
       icon: "dashboard_inactive.png",
@@ -150,6 +148,8 @@ export default function Statistics() {
   const [hobbies, setHobbies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
 
   const personalStatistics = [
     {
