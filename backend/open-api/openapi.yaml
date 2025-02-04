@@ -111,8 +111,20 @@ paths:
       responses:
         '200':
           description: Аватар загружен
-
-
+    get:
+      tags:
+        - User
+      summary:  Получить аватар пользователя
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
   /api/habits:
     get:
       tags:

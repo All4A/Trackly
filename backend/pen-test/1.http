@@ -22,18 +22,25 @@ Content-Type: application/json
   "password": "123"
 }
 
+> {% client.global.set("auth_token", response.body.token); %}
 ###
 
 
 ###
 
 POST http://localhost:8080/api/users/avatar
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJ5b3VyLWFwcC1uYW1lIiwiZXhwIjoxNzM4NzQ4NTk2LCJpYXQiOjE3Mzg2NjIxOTZ9.FRy3LoGzd0vgR3JXPPzz9Q1AUFYcOKawADaUUPSHMBw
+Authorization: Bearer {{auth_token}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
 Content-Disposition: form-data; name="avatar"; filename="avatar.png"
 
 < ./avatar.png
+
+###
+
+
+GET http://localhost:8080/api/users/avatar
+Authorization: Bearer {{auth_token}}
 
 ###

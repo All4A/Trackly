@@ -19,6 +19,10 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
+func (r *UserRepository) FindUserById(id int) (*models.User, error) {
+	return findUser(r.db, withId(id))
+}
+
 func (r *UserRepository) FindUserByEmail(username string) (*models.User, error) {
 	return findUser(r.db, withUserName(username))
 }
@@ -35,6 +39,12 @@ func findUser(tx *gorm.DB, opts ...db.CommonScopeOption) (*models.User, error) {
 func withUserName(userName string) db.CommonScopeOption {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("email = ?", userName)
+	}
+}
+
+func withId(uid int) db.CommonScopeOption {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("id = ?", uid)
 	}
 }
 

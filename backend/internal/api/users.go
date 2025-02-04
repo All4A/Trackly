@@ -129,12 +129,14 @@ func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {
 }
 
 func (a *UserApi) GetApiUsersAvatar(ctx echo.Context) error {
-	email := ctx.QueryParam("email")
-	if email == "" {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "email is required"})
+
+	userID, ok := ctx.Get("user_id").(int)
+	if !ok {
+		log.Println("❌ user_id is missing or invalid!")
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
 	}
 
-	user, err := a.userRepo.FindUserByEmail(email)
+	user, err := a.userRepo.FindUserById(userID)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "error fetching user"})
 	}

@@ -13,7 +13,7 @@ type Config struct {
 	Port        string      `yaml:"port"`
 	Database    DbConfig    `yaml:"database"`
 	JwtSecret   string      `yaml:"jwt_secret"`
-	MinioConfig MinioConfig `yaml:"minio_config"`
+	MinioConfig MinioConfig `yaml:"minio"`
 }
 
 type DbConfig struct {
@@ -25,12 +25,11 @@ type DbConfig struct {
 }
 
 type MinioConfig struct {
-	Port              string
-	MinioEndpoint     string
-	BucketName        string
-	MinioRootUser     string
-	MinioRootPassword string
-	MinioUseSSL       bool
+	MinioEndpoint     string `yaml:"endpoint"`
+	BucketName        string `yaml:"bucket_name"`
+	MinioRootUser     string `yaml:"root_user"`
+	MinioRootPassword string `yaml:"root_password"`
+	MinioUseSSL       bool   `yaml:"use_ssl"`
 }
 
 func LoadConfig(filePath string) (*Config, error) {
@@ -45,30 +44,24 @@ func LoadConfig(filePath string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing configs file: %w", err)
 	}
-
-	if config.Database.Host == "" {
-		dbHost := os.Getenv("DB_HOST")
-		if dbHost == "" {
-			return nil, fmt.Errorf("DB_HOST environment variable is not set")
-		}
-		config.Database.Host = dbHost
-	}
-
-	if config.Database.Password == "" {
-		dbPassword := os.Getenv("DB_PASSWORD")
-		if dbPassword == "" {
-			return nil, fmt.Errorf("DB_PASSWORD environment variable is not set")
-		}
-		config.Database.Password = dbPassword
-	}
-
-	config.MinioConfig = MinioConfig{
-		Port:              getEnv("PORT", "8080"),
-		MinioEndpoint:     getEnv("MINIO_ENDPOINT", "localhost:9000"),
-		BucketName:        getEnv("MINIO_BUCKET_NAME", "best-bucket"),
-		MinioRootUser:     getEnv("MINIO_ROOT_USER", "root"),
-		MinioRootPassword: getEnv("MINIO_ROOT_PASSWORD", "best-password"),
-		MinioUseSSL:       getEnvAsBool("MINIO_USE_SSL", false),
+	config = Config{
+		AppName: getEnv("APP_NAME", config.AppName),
+		Port:    getEnv("APP_PORT", config.Port),
+		Database: DbConfig{
+			Host:     getEnv("DB_HOST", config.Database.Host),
+			Port:     getEnv("DB_PORT", config.Database.Port),
+			Username: getEnv("DB_USERNAME", config.Database.Username),
+			Password: getEnv("DB_PASSWORD", config.Database.Password),
+			DbName:   getEnv("DB_NAME", config.Database.DbName),
+		},
+		JwtSecret: getEnv("JWT_SECRET", config.JwtSecret),
+		MinioConfig: MinioConfig{
+			MinioEndpoint:     getEnv("MINIO_ENDPOINT", config.MinioConfig.MinioEndpoint),
+			BucketName:        getEnv("MINIO_BUCKET_NAME", config.MinioConfig.BucketName),
+			MinioRootUser:     getEnv("MINIO_ROOT_USER", config.MinioConfig.MinioRootUser),
+			MinioRootPassword: getEnv("MINIO_ROOT_PASSWORD", config.MinioConfig.MinioRootPassword),
+			MinioUseSSL:       getEnvAsBool("MINIO_USE_SSL", config.MinioConfig.MinioUseSSL),
+		},
 	}
 
 	log.Printf("Loaded config: %+v", config.MinioConfig)

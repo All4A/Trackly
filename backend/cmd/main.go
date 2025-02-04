@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"github.com/labstack/echo/v4"
 	"log"
@@ -42,7 +41,6 @@ func main() {
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
 	minio, err := db.NewMinioClient(cfg)
-	minio.InitMinio(context.Background(), cfg)
 	if err != nil {
 		log.Fatalf("Could not connect to S3: %v", err)
 	}
@@ -91,7 +89,6 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)
 
 	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
-	protectedGroup.GET("/api/users/avatar", wrapper.GetApiUsersProfile)
-	protectedGroup.GET("/api/users/profile", wrapper.GetApiUsersProfile)
-	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)
+	protectedGroup.GET("/api/users/avatar", wrapper.GetApiUsersAvatar)
+
 }

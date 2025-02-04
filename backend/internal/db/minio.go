@@ -21,17 +21,21 @@ func NewMinioClient(cfg *config.Config) (*MinioClient, error) {
 		return nil, err
 	}
 
+	err = initMinio(context.Background(), cfg, client)
+	if err != nil {
+		return nil, err
+	}
 	return &MinioClient{Client: client}, nil
 }
 
-func (m *MinioClient) InitMinio(ctx context.Context, cfg *config.Config) error {
-	exists, err := m.Client.BucketExists(ctx, cfg.MinioConfig.BucketName)
+func initMinio(ctx context.Context, cfg *config.Config, client *minio.Client) error {
+	exists, err := client.BucketExists(ctx, cfg.MinioConfig.BucketName)
 	if err != nil {
 		return err
 	}
 	if !exists {
 		log.Printf("Бакет %s не найден, создаем новый...", cfg.MinioConfig.BucketName)
-		err := m.Client.MakeBucket(ctx, cfg.MinioConfig.BucketName, minio.MakeBucketOptions{})
+		err := client.MakeBucket(ctx, cfg.MinioConfig.BucketName, minio.MakeBucketOptions{})
 		if err != nil {
 			return err
 		}
