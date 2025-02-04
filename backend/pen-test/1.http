@@ -25,6 +25,7 @@ Content-Type: application/json
 > {% client.global.set("auth_token", response.body.token); %}
 ###
 
+
 ###
 POST http://localhost:8080/api/habits
 Content-Type: application/json
@@ -62,6 +63,9 @@ Content-Disposition: form-data; name="avatar"; filename="avatar.png"
 < ./avatar.png
 
 ###
+
+
+=======
 GET http://localhost:8080/api/users/avatar
 Authorization: Bearer {{auth_token}}
 

@@ -70,13 +70,59 @@ func (a UserApi) PostApiAuthRegister(ctx echo.Context) error {
 }
 
 func (a UserApi) GetApiUsersProfile(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+	userID, ok := ctx.Get("user_id").(int)
+	if !ok {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
+	}
+
+	user, err := a.userRepo.FindUserById(userID)
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, map[string]string{"error": "user not found"})
+	}
+
+	return ctx.JSON(http.StatusOK, user)
+
 }
 
 func (a UserApi) PutApiUsersProfile(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+	userID, ok := ctx.Get("user_id").(int)
+	if !ok {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
+	}
+
+	var updateRequest models.User
+	if err := ctx.Bind(&updateRequest); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+	}
+
+	user, err := a.userRepo.FindUserById(userID)
+	if err != nil {
+		return ctx.JSON(http.StatusNotFound, map[string]string{"error": "user not found"})
+	}
+
+	// Обновляем только непустые поля
+	if updateRequest.Username != "" {
+		user.Username = updateRequest.Username
+	}
+	if updateRequest.Email != "" {
+		user.Email = updateRequest.Email
+	}
+	if !updateRequest.DateOfBirth.IsZero() {
+		user.DateOfBirth = updateRequest.DateOfBirth
+	}
+	if updateRequest.Country != "" {
+		user.Country = updateRequest.Country
+	}
+	if updateRequest.City != "" {
+		user.City = updateRequest.City
+	}
+
+	err = a.userRepo.UpdateUser(user)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to update user"})
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }
 
 func (a *UserApi) PostApiUsersAvatar(ctx echo.Context) error {

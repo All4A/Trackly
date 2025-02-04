@@ -65,3 +65,16 @@ func (r *UserRepository) UpdateUserAvatar(userID int, avatarUUID string) error {
 
 	return nil
 }
+
+func (r *UserRepository) UpdateUser(user *models.User) error {
+	result := r.db.Save(user)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update user: %v", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no user found with ID %d", user.ID)
+	}
+
+	return nil
+}
