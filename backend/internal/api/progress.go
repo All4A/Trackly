@@ -22,8 +22,14 @@ func (h *ProgressApi) PostApiHabitsHabitIdScore(ctx echo.Context, habitId int) e
 
 	var updatedScore ScoreHabit
 
+	userId := ctx.Get("user_id").(int)
+
 	if err := ctx.Bind(&updatedScore); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	if habit, _ := h.habitRepo.GetHabitById(habitId, userId); habit == nil {
+		return ctx.JSON(http.StatusNotFound, map[string]string{"error": "Habit not found"})
 	}
 
 	plans, err := h.planRepo.GetPlansByHabitId(habitId)

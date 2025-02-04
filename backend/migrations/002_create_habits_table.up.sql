@@ -4,8 +4,8 @@ CREATE TABLE plans
     habit_id INT,
     plan_unit TEXT,
     goal INT,
-    start_time DATE,
-    close_time DATE
+    start_time TIMESTAMP,
+    close_time TIMESTAMP
 );
 CREATE TABLE habits
 (
@@ -14,21 +14,10 @@ CREATE TABLE habits
     description TEXT,
     user_id int,
     constraint us_id foreign key (user_id) references users(id),
-    start_date DATE,
+    start_date TIMESTAMP,
     notifications BOOLEAN
 
 );
-CREATE TABLE user_habits
-(
-    id SERIAL PRIMARY KEY,
-    user_id INT,
-    constraint u_id foreign key (user_id) references users (id),
-    habit_id INT,
-    constraint h_id foreign key (habit_id) references habits (id),
-    start_date DATE,
-    current_plan INT
-);
-
 ALTER TABLE plans
     ADD CONSTRAINT fk_plans_habit_id
         FOREIGN KEY (habit_id)
@@ -40,6 +29,6 @@ CREATE TABLE habit_scores(
     constraint hab_id foreign key (habit_id) references habits(id),
     plan_id int,
     constraint pl_id foreign key (plan_id) references plans(id),
-    date_time DATE,
+    date_time TIMESTAMP,
     value int
 );
