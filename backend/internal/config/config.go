@@ -3,58 +3,84 @@ package config
 import (
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
+	"strconv"
 )
 
-// Config represents the application configuration
 type Config struct {
-	AppName   string   `yaml:"app_name"`
-	Port      string   `yaml:"port"`
-	Database  DbConfig `yaml:"database"`
-	JwtSecret string   `yaml:"jwt_secret"`
+	AppName     string      `yaml:"app_name"`
+	Port        string      `yaml:"port"`
+	Database    DbConfig    `yaml:"database"`
+	JwtSecret   string      `yaml:"jwt_secret"`
+	MinioConfig MinioConfig `yaml:"minio"`
 }
 
-// DbConfig represents the database configuration
 type DbConfig struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Username string `yaml:"username"`
-	Password string `yaml:"password"` // This will be overridden by the environment variable
+	Password string `yaml:"password"`
 	DbName   string `yaml:"dbname"`
 }
 
-// LoadConfig reads the YAML configuration file and injects environment variables
+type MinioConfig struct {
+	MinioEndpoint     string `yaml:"endpoint"`
+	BucketName        string `yaml:"bucket_name"`
+	MinioRootUser     string `yaml:"root_user"`
+	MinioRootPassword string `yaml:"root_password"`
+	MinioUseSSL       bool   `yaml:"use_ssl"`
+}
+
 func LoadConfig(filePath string) (*Config, error) {
-	// Read the YAML file
+
 	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading configs file: %w", err)
 	}
 
-	// Parse the YAML into the Config struct
 	var config Config
 	err = yaml.Unmarshal(file, &config)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing configs file: %w", err)
 	}
-
-	// Override the password from the environment variable
-
-	if config.Database.Host == "" {
-		dbHost := os.Getenv("DB_HOST")
-		if dbHost == "" {
-			return nil, fmt.Errorf("DB_HOST environment variable is not set")
-		}
-		config.Database.Host = dbHost
+	config = Config{
+		AppName: getEnv("APP_NAME", config.AppName),
+		Port:    getEnv("APP_PORT", config.Port),
+		Database: DbConfig{
+			Host:     getEnv("DB_HOST", config.Database.Host),
+			Port:     getEnv("DB_PORT", config.Database.Port),
+			Username: getEnv("DB_USERNAME", config.Database.Username),
+			Password: getEnv("DB_PASSWORD", config.Database.Password),
+			DbName:   getEnv("DB_NAME", config.Database.DbName),
+		},
+		JwtSecret: getEnv("JWT_SECRET", config.JwtSecret),
+		MinioConfig: MinioConfig{
+			MinioEndpoint:     getEnv("MINIO_ENDPOINT", config.MinioConfig.MinioEndpoint),
+			BucketName:        getEnv("MINIO_BUCKET_NAME", config.MinioConfig.BucketName),
+			MinioRootUser:     getEnv("MINIO_ROOT_USER", config.MinioConfig.MinioRootUser),
+			MinioRootPassword: getEnv("MINIO_ROOT_PASSWORD", config.MinioConfig.MinioRootPassword),
+			MinioUseSSL:       getEnvAsBool("MINIO_USE_SSL", config.MinioConfig.MinioUseSSL),
+		},
 	}
 
-	if config.Database.Password == "" {
-		dbPassword := os.Getenv("DB_PASSWORD")
-		if dbPassword == "" {
-			return nil, fmt.Errorf("DB_PASSWORD environment variable is not set")
-		}
-		config.Database.Password = dbPassword
-	}
+	log.Printf("Loaded config: %+v", config.MinioConfig)
 
 	return &config, nil
+}
+
+func getEnv(key string, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+	if valueStr := getEnv(key, ""); valueStr != "" {
+		if value, err := strconv.ParseBool(valueStr); err == nil {
+			return value
+		}
+	}
+	return defaultValue
 }

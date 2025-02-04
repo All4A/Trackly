@@ -289,6 +289,9 @@ type ClientInterface interface {
 	// GetApiHabitsHabitIdStatisticTotal request
 	GetApiHabitsHabitIdStatisticTotal(ctx context.Context, habitId int, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiUsersAvatar request
+	GetApiUsersAvatar(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiUsersAvatarWithBody request with any body
 	PostApiUsersAvatarWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -459,6 +462,18 @@ func (c *Client) GetApiHabitsHabitIdStatistic(ctx context.Context, habitId int, 
 
 func (c *Client) GetApiHabitsHabitIdStatisticTotal(ctx context.Context, habitId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiHabitsHabitIdStatisticTotalRequest(c.Server, habitId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiUsersAvatar(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiUsersAvatarRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -902,6 +917,33 @@ func NewGetApiHabitsHabitIdStatisticTotalRequest(server string, habitId int) (*h
 	return req, nil
 }
 
+// NewGetApiUsersAvatarRequest generates requests for GetApiUsersAvatar
+func NewGetApiUsersAvatarRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/users/avatar")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiUsersAvatarRequestWithBody generates requests for PostApiUsersAvatar with any type of body
 func NewPostApiUsersAvatarRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
@@ -1077,6 +1119,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetApiHabitsHabitIdStatisticTotalWithResponse request
 	GetApiHabitsHabitIdStatisticTotalWithResponse(ctx context.Context, habitId int, reqEditors ...RequestEditorFn) (*GetApiHabitsHabitIdStatisticTotalResponse, error)
+
+	// GetApiUsersAvatarWithResponse request
+	GetApiUsersAvatarWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersAvatarResponse, error)
 
 	// PostApiUsersAvatarWithBodyWithResponse request with any body
 	PostApiUsersAvatarWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiUsersAvatarResponse, error)
@@ -1288,6 +1333,27 @@ func (r GetApiHabitsHabitIdStatisticTotalResponse) StatusCode() int {
 	return 0
 }
 
+type GetApiUsersAvatarResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiUsersAvatarResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiUsersAvatarResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PostApiUsersAvatarResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1471,6 +1537,15 @@ func (c *ClientWithResponses) GetApiHabitsHabitIdStatisticTotalWithResponse(ctx 
 		return nil, err
 	}
 	return ParseGetApiHabitsHabitIdStatisticTotalResponse(rsp)
+}
+
+// GetApiUsersAvatarWithResponse request returning *GetApiUsersAvatarResponse
+func (c *ClientWithResponses) GetApiUsersAvatarWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUsersAvatarResponse, error) {
+	rsp, err := c.GetApiUsersAvatar(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiUsersAvatarResponse(rsp)
 }
 
 // PostApiUsersAvatarWithBodyWithResponse request with arbitrary body returning *PostApiUsersAvatarResponse
@@ -1724,6 +1799,22 @@ func ParseGetApiHabitsHabitIdStatisticTotalResponse(rsp *http.Response) (*GetApi
 	return response, nil
 }
 
+// ParseGetApiUsersAvatarResponse parses an HTTP response from a GetApiUsersAvatarWithResponse call
+func ParseGetApiUsersAvatarResponse(rsp *http.Response) (*GetApiUsersAvatarResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiUsersAvatarResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
 // ParsePostApiUsersAvatarResponse parses an HTTP response from a PostApiUsersAvatarWithResponse call
 func ParsePostApiUsersAvatarResponse(rsp *http.Response) (*PostApiUsersAvatarResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1811,6 +1902,9 @@ type ServerInterface interface {
 	// Получение статустики
 	// (GET /api/habits/{habitId}/statistic/total)
 	GetApiHabitsHabitIdStatisticTotal(ctx echo.Context, habitId int) error
+	// Получить аватар пользователя
+	// (GET /api/users/avatar)
+	GetApiUsersAvatar(ctx echo.Context) error
 	// Загрузить аватар
 	// (POST /api/users/avatar)
 	PostApiUsersAvatar(ctx echo.Context) error
@@ -1980,6 +2074,17 @@ func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatisticTotal(ctx echo.Cont
 	return err
 }
 
+// GetApiUsersAvatar converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiUsersAvatar(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetApiUsersAvatar(ctx)
+	return err
+}
+
 // PostApiUsersAvatar converts echo context to params.
 func (w *ServerInterfaceWrapper) PostApiUsersAvatar(ctx echo.Context) error {
 	var err error
@@ -2050,6 +2155,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
 	router.GET(baseURL+"/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
 	router.GET(baseURL+"/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
+	router.GET(baseURL+"/api/users/avatar", wrapper.GetApiUsersAvatar)
 	router.POST(baseURL+"/api/users/avatar", wrapper.PostApiUsersAvatar)
 	router.GET(baseURL+"/api/users/profile", wrapper.GetApiUsersProfile)
 	router.PUT(baseURL+"/api/users/profile", wrapper.PutApiUsersProfile)

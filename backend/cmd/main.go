@@ -40,7 +40,12 @@ func main() {
 
 	// Инициализация репозитория и сервера
 	userRepo := repositories.NewUserRepository(database)
-	userApi := api.NewUserApi(userRepo, cfg)
+	minio, err := db.NewMinioClient(cfg)
+	if err != nil {
+		log.Fatalf("Could not connect to S3: %v", err)
+	}
+
+	userApi := api.NewUserApi(userRepo, cfg, minio)
 
 	planRepo := repositories.NewPlanRepository(database)
 
@@ -82,4 +87,8 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
 	protectedGroup.GET("/api/users/profile", wrapper.GetApiUsersProfile)
 	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)
+
+	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
+	protectedGroup.GET("/api/users/avatar", wrapper.GetApiUsersAvatar)
+
 }
