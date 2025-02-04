@@ -174,7 +174,7 @@ export default class HobbiesApi {
      * @param {module:api/HobbiesApi~apiHabitsPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/Habit}
      */
-    apiHabitsPost(newHabit, callback) {
+    apiHabitsPost(newHabit, jwtToken, callback) {
       let postBody = newHabit;
       // verify the required parameter 'newHabit' is set
       if (newHabit === undefined || newHabit === null) {
@@ -186,6 +186,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };

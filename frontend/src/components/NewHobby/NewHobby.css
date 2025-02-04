@@ -52,7 +52,7 @@ body {
 .schedule-group input,
 .schedule-group select,
 textarea,
-input[type="text"] {
+.input-field {
     width: 100%;
     padding: 10px;
     font-size: 16px;
