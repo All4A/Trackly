@@ -361,8 +361,6 @@ components:
     UserProfileUpdate:
       type: object
       properties:
-        name:
-          type: string
         username:
           type: string
         email:
