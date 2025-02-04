@@ -1,4 +1,4 @@
-﻿package repositories
+package repositories
 
 import (
 	"gorm.io/gorm"
@@ -18,9 +18,9 @@ func (r *HabitRepository) CreateHabit(habit *models.Habit) error {
 	return r.db.Create(&habit).Error
 }
 
-func (r *HabitRepository) GetHabitsByUserId(user_id int) ([]*models.Habit, error) {
+func (r *HabitRepository) GetHabitsByUserId(userId int) ([]*models.Habit, error) {
 	var habits []*models.Habit
-	if err := r.db.Where("user_id = ?", user_id).Find(&habits).Error; err != nil {
+	if err := r.db.Preload("HabitScore").Preload("Plans").Where("user_id = ?", userId).Find(&habits).Error; err != nil {
 		return nil, err
 	}
 	return habits, nil
@@ -29,7 +29,7 @@ func (r *HabitRepository) GetHabitsByUserId(user_id int) ([]*models.Habit, error
 func (r *HabitRepository) GetHabitById(id int, userId int) (*models.Habit, error) {
 	var habit models.Habit
 
-	if err := r.db.Where("id = ? AND user_id = ?", id, userId).First(&habit).Error; err != nil {
+	if err := r.db.Preload("HabitScore").Preload("Plans").Where("id = ? AND user_id = ?", id, userId).First(&habit).Error; err != nil {
 		return nil, err
 	}
 

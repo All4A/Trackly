@@ -39,6 +39,7 @@ Authorization: Bearer {{auth_token}}
   "description": "string",
   "notifications": true
 }
+> {% client.global.set("habitId", response.body.id); %}
 ###
 
 
@@ -64,4 +65,16 @@ Content-Disposition: form-data; name="avatar"; filename="avatar.png"
 GET http://localhost:8080/api/users/avatar
 Authorization: Bearer {{auth_token}}
 
+###
+
+
+###
+POST http://localhost:8080/api/habits/1/score
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "date": "2025-02-04T16:49:25.061Z",
+  "value": 111
+}
 ###
