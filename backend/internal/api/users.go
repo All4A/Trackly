@@ -90,7 +90,7 @@ func (a UserApi) PutApiUsersProfile(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "invalid user_id"})
 	}
 
-	var updateRequest models.User
+	var updateRequest UserProfileUpdate
 	if err := ctx.Bind(&updateRequest); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
 	}
@@ -101,20 +101,20 @@ func (a UserApi) PutApiUsersProfile(ctx echo.Context) error {
 	}
 
 	// Обновляем только непустые поля
-	if updateRequest.Username != "" {
-		user.Username = updateRequest.Username
+	if *updateRequest.Username != "" {
+		user.Username = *updateRequest.Username
 	}
-	if updateRequest.Email != "" {
-		user.Email = updateRequest.Email
+	if *updateRequest.Email != "" {
+		user.Email = *updateRequest.Email
 	}
 	if !updateRequest.DateOfBirth.IsZero() {
-		user.DateOfBirth = updateRequest.DateOfBirth
+		user.DateOfBirth = updateRequest.DateOfBirth.Time
 	}
-	if updateRequest.Country != "" {
-		user.Country = updateRequest.Country
+	if *updateRequest.Country != "" {
+		user.Country = *updateRequest.Country
 	}
-	if updateRequest.City != "" {
-		user.City = updateRequest.City
+	if *updateRequest.City != "" {
+		user.City = *updateRequest.City
 	}
 
 	err = a.userRepo.UpdateUser(user)
@@ -191,7 +191,7 @@ func (a *UserApi) GetApiUsersAvatar(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "error fetching user"})
 	}
 
-	if user.AvatarId == uuid.Nil {
+	if user.AvatarId == nil {
 		return ctx.JSON(http.StatusNotFound, map[string]string{"error": "avatar not found"})
 	}
 

@@ -25,6 +25,25 @@ Content-Type: application/json
 > {% client.global.set("auth_token", response.body.token); %}
 ###
 
+###
+GET http://localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+###
+
+###
+PUT http://localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "username": "username",
+  "email": "ars2@mail.ru",
+  "dateOfBirth": "2025-02-04",
+  "country": "string",
+  "city": "string"
+}
+###
 
 ###
 POST http://localhost:8080/api/habits
@@ -61,14 +80,11 @@ Content-Type: multipart/form-data; boundary=boundary
 Content-Disposition: form-data; name="avatar"; filename="avatar.png"
 
 < ./avatar.png
-
 ###
 
-
-=======
+###
 GET http://localhost:8080/api/users/avatar
 Authorization: Bearer {{auth_token}}
-
 ###
 
 
@@ -82,3 +98,4 @@ Authorization: Bearer {{auth_token}}
   "value": 111
 }
 ###
+
