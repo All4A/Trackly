@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"gorm.io/gorm"
+	"time"
 	"trackly-backend/internal/models"
 )
 
@@ -32,7 +33,18 @@ func (r *HabitRepository) GetHabitById(id int, userId int) (*models.Habit, error
 	if err := r.db.Preload("HabitScore").Preload("Plans").Where("id = ? AND user_id = ?", id, userId).First(&habit).Error; err != nil {
 		return nil, err
 	}
+	return &habit, nil
+}
 
+func (r *HabitRepository) GetHabitWithStatInInterval(id int, userId int, startTime, endTime time.Time) (*models.Habit, error) {
+	var habit models.Habit
+
+	if err := r.db.Preload("HabitScore", "date_time BETWEEN ? AND ?", startTime, endTime).
+		Preload("Plans").
+		Where("id = ? AND user_id = ?", id, userId).
+		First(&habit).Error; err != nil {
+		return nil, err
+	}
 	return &habit, nil
 }
 

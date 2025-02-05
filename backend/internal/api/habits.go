@@ -53,7 +53,7 @@ func (h *HabitsApi) GetApiHabits(ctx echo.Context) error {
 		todayValue := 0
 
 		for _, score := range habit.HabitScore {
-			if score.DateTime.Day() == time.Now().Day() {
+			if isToday(score.DateTime) {
 				todayValue += score.Value
 			}
 		}
@@ -160,7 +160,7 @@ func (h *HabitsApi) GetApiHabitsHabitId(ctx echo.Context, habitId int) error {
 	todayValue := 0
 
 	for _, score := range habit.HabitScore {
-		if score.DateTime.Day() == time.Now().Day() {
+		if isToday(score.DateTime) {
 			todayValue += score.Value
 		}
 	}
@@ -262,4 +262,9 @@ func (h *HabitsApi) PutApiHabitsHabitId(ctx echo.Context, habitId int) error {
 
 	return ctx.JSON(http.StatusOK, map[string]string{"message": "OK"})
 
+}
+
+func isToday(t time.Time) bool {
+	now := time.Now()
+	return t.Year() == now.Year() && t.Month() == now.Month() && t.Day() == now.Day()
 }

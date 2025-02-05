@@ -461,6 +461,10 @@ components:
 
     HabitStatisticResponse:
       type: object
+      required:
+        - period
+        - groupBy
+        - planUnit
       properties:
         groupBy:
           $ref: '#/components/schemas/StatisticGroupBy'
@@ -469,13 +473,19 @@ components:
         period:
           type: array
           items:
-            properties:
-              interval:
-                type: string
-                description: "тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами"
-              value:
-                type: integer
-                description: "тут приходит значение в зависимости от типа"
+            $ref: '#/components/schemas/PeriodValue'
+    PeriodValue:
+      type: object
+      required:
+        - interval
+        - value
+      properties:
+        interval:
+          type: string
+          description: "тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами"
+        value:
+          type: integer
+          description: "тут приходит значение в зависимости от типа"
 
     HabitStatisticTotalResponse:
       type: object

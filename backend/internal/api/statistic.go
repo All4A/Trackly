@@ -1,10 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 	"trackly-backend/internal/models"
 	"trackly-backend/internal/repositories"
@@ -27,144 +27,111 @@ func (s StatisticApi) GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int
 
 	userId := ctx.Get("user_id").(int)
 
-	habit, err := s.habitRepo.GetHabitById(habitId, userId)
+	habit, err := s.habitRepo.GetHabitWithStatInInterval(habitId, userId, params.DateFrom.Time, params.DateTo.Time)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{})
 	}
 
-	plansArr := habit.Plans
-
-	var plan models.Plan
-	if len(plansArr) > 0 {
-
-		sort.Slice(plansArr, func(i, j int) bool {
-			return plansArr[i].ID > plansArr[j].ID
-		})
-		plan = plansArr[0]
-	}
-
-	dateFrom := params.DateFrom.Time
-	dateTo := params.DateTo.Time
-
-	dateTo = time.Date(
-		dateTo.Year(), dateTo.Month(), dateTo.Day(),
-		23, 59, 59, 999999999,
-		dateTo.Location(),
-	)
-
-	scores := habit.HabitScore
-
-	sort.Slice(scores, func(i, j int) bool {
-		return scores[i].DateTime.Before(scores[j].DateTime)
+	// сортируем
+	sort.Slice(habit.HabitScore, func(i, j int) bool {
+		return habit.HabitScore[i].DateTime.Before(habit.HabitScore[i].DateTime)
 	})
-
-	response := HabitStatisticResponse{
-		GroupBy: &params.GroupBy,
-		Period: (*[]struct {
-			Interval *string `json:"interval,omitempty"`
-			Value    *int    `json:"value,omitempty"`
-		})(&[]struct {
-			Interval *string
-			Value    *int
-		}{}),
-		PlanUnit: (*PlanUnit)(plan.PlanUnit),
-	}
+	currentPlan := findCurrentPlan(habit.Plans)
 
 	switch params.GroupBy {
 
-	case "day":
-
-		dateScores := make(map[time.Time]int)
-		for _, score := range scores {
-			if score.DateTime.After(dateFrom) && score.DateTime.Before(dateTo) {
-
-				dateScores[score.DateTime] += score.Value
-			}
-
-		}
-
-		for dateKey, value := range dateScores {
-			weekday := dateKey.Weekday().String()
-			*response.Period = append(*response.Period, struct {
-				Interval *string `json:"interval,omitempty"`
-				Value    *int    `json:"value,omitempty"`
-			}{
-				Interval: &weekday,
-				Value:    &value,
-			})
-		}
-
-	case "month":
-		var currentMonth string
-		var currentValue int
-		first := true
-
-		for _, score := range scores {
-			if score.DateTime.Before(dateFrom) || score.DateTime.After(dateTo) {
-				continue
-			}
-
-			month := score.DateTime.Month().String()
-
-			if first {
-				currentMonth = month
-				currentValue = score.Value
-				first = false
-				continue
-			}
-
-			if month != currentMonth {
-
-				newMonth := currentMonth
-				newValue := currentValue
-				*response.Period = append(*response.Period, struct {
-					Interval *string `json:"interval,omitempty"`
-					Value    *int    `json:"value,omitempty"`
-				}{
-					Interval: &newMonth,
-					Value:    &newValue,
-				})
-
-				currentMonth = month
-				currentValue = 0
-			}
-
-			currentValue += score.Value
-		}
-		if !first {
-
-			newMonth := currentMonth
-			newValue := currentValue
-			*response.Period = append(*response.Period, struct {
-				Interval *string `json:"interval,omitempty"`
-				Value    *int    `json:"value,omitempty"`
-			}{
-				Interval: &newMonth,
-				Value:    &newValue,
-			})
-		}
-	case "year":
-
-		yearScores := make(map[string]int)
-		for _, score := range scores {
-			if score.DateTime.After(dateFrom) && score.DateTime.Before(dateTo) {
-				year := strconv.Itoa(score.DateTime.Year())
-				yearScores[year] += score.Value
-			}
-		}
-		for yearKey, value := range yearScores {
-			*response.Period = append(*response.Period, struct {
-				Interval *string `json:"interval,omitempty"`
-				Value    *int    `json:"value,omitempty"`
-			}{
-				Interval: &yearKey,
-				Value:    &value,
-			})
-		}
+	case Day:
+		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
+			GroupBy:  params.GroupBy,
+			Period:   periodsByDay(habit, params.DateFrom.Time, params.DateTo.Time),
+			PlanUnit: PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
+		})
+	case Month:
+		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
+			GroupBy:  params.GroupBy,
+			Period:   periodsByMonth(habit, params.DateFrom.Time, params.DateTo.Time),
+			PlanUnit: PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
+		})
+	case Year:
+		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
+			GroupBy:  params.GroupBy,
+			Period:   periodsByYear(habit, params.DateFrom.Time, params.DateTo.Time),
+			PlanUnit: PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
+		})
 	}
 
-	return ctx.JSON(http.StatusOK, response)
+	return ctx.JSON(http.StatusOK, nil)
 
+}
+
+func periodsByDay(habit *models.Habit, from time.Time, to time.Time) []PeriodValue {
+	// Создаем карту для суммирования значений по дням
+	dailySums := make(map[string]int)
+	for _, score := range habit.HabitScore {
+		dayKey := score.DateTime.Format("2006-01-02") // Формат: ГГГГ-ММ-ДД
+		dailySums[dayKey] += score.Value
+	}
+
+	// Находим минимальную и максимальную дату
+	minDate, maxDate := findMinMaxDate(from, to)
+
+	// Создаем итоговый массив
+	var scores []PeriodValue
+	for currentDate := minDate; !currentDate.After(maxDate); currentDate = currentDate.AddDate(0, 0, 1) {
+		dayKey := currentDate.Format("2006-01-02") // Формат: ГГГГ-ММ-ДД
+		value := dailySums[dayKey]                 // Если день отсутствует в карте, значение будет 0
+		scores = append(scores, PeriodValue{
+			Interval: dayKey,
+			Value:    value,
+		})
+	}
+	return scores
+}
+
+func periodsByMonth(habit *models.Habit, from time.Time, to time.Time) []PeriodValue {
+	monthlySums := make(map[string]int)
+	for _, score := range habit.HabitScore {
+		monthKey := score.DateTime.Format("2006-01") // Формат: ГГГГ-ММ
+		monthlySums[monthKey] += score.Value
+	}
+
+	// Находим минимальную и максимальную дату
+	minDate, maxDate := findMinMaxDate(from, to)
+
+	// Создаем итоговый массив
+	scores := []PeriodValue{}
+	for currentDate := minDate; !currentDate.After(maxDate); currentDate = currentDate.AddDate(0, 1, 0) {
+		monthKey := currentDate.Format("2006-01") // Формат: ГГГГ-ММ
+		value := monthlySums[monthKey]            // Если месяц отсутствует в карте, значение будет 0
+		scores = append(scores, PeriodValue{
+			Interval: monthKey,
+			Value:    value,
+		})
+	}
+	return scores
+}
+
+func periodsByYear(habit *models.Habit, from time.Time, to time.Time) []PeriodValue {
+	// Создаем карту для суммирования значений по годам
+	yearlySums := make(map[int]int)
+	for _, score := range habit.HabitScore {
+		year := score.DateTime.Year()
+		yearlySums[year] += score.Value
+	}
+
+	// Находим минимальный и максимальный год
+	minYear, maxYear := from.Year(), to.Year()
+
+	// Создаем итоговый массив
+	var scores []PeriodValue
+	for year := minYear; year <= maxYear; year++ {
+		value := yearlySums[year] // Если год отсутствует в карте, значение будет 0
+		scores = append(scores, PeriodValue{
+			Interval: fmt.Sprintf("%d", year),
+			Value:    value,
+		})
+	}
+	return scores
 }
 
 func (s StatisticApi) GetApiHabitsHabitIdStatisticTotal(ctx echo.Context, habitId int) error {
@@ -208,5 +175,22 @@ func (s StatisticApi) GetApiHabitsHabitIdStatisticTotal(ctx echo.Context, habitI
 	}
 
 	return ctx.JSON(200, response)
+}
 
+func findCurrentPlan(plans []models.Plan) *models.Plan {
+	var currentPlan *models.Plan
+	for _, plan := range plans {
+		if currentPlan == nil || plan.ID >= currentPlan.ID {
+			currentPlan = &plan
+		}
+	}
+	return currentPlan
+}
+
+func findMinMaxDate(minDate, maxDate time.Time) (time.Time, time.Time) {
+	// Приводим минимальную и максимальную дату к началу месяца
+	minDate = time.Date(minDate.Year(), minDate.Month(), 1, 0, 0, 0, 0, minDate.Location())
+	maxDate = time.Date(maxDate.Year(), maxDate.Month(), 1, 0, 0, 0, 0, maxDate.Location())
+
+	return minDate, maxDate
 }
