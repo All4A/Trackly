@@ -54,7 +54,7 @@ func main() {
 
 	statisitcRepo := repositories.NewStatisticRepository(database)
 
-	statisticApi := api.NewStatisticApi()
+	statisticApi := api.NewStatisticApi(habitRepo, statisitcRepo)
 	progressApi := api.NewProgressApi(statisitcRepo, habitRepo, planRepo)
 	server := &Server{userApi, habitsApi, statisticApi, progressApi}
 
