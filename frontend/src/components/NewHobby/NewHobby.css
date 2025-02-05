@@ -1,51 +1,53 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f7fb;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f7fb;
+  margin: 0;
+  padding: 0;
 }
 
 /* Основной контейнер */
 .hobby-container {
-    display: flex;
-    height: 100vh;
-    background-color: #f8fafc;
+  display: flex;
+  height: 100vh;
+  background-color: #f8fafc;
 }
 
 /* Основной блок формы */
 .new-hobby-form {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-    margin-left: 250px; /* Отступ слева от Navbar */
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  margin-left: 250px;
+  /* Отступ слева от Navbar */
 }
 
 /* Контейнер формы */
 .form-container {
-    background-color: white;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    max-width: 600px;  /* Ограничиваем ширину для равномерного вида */
-    width: 100%;
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  /* Ограничиваем ширину для равномерного вида */
+  width: 100%;
 }
 
 /* Заголовок */
 .form-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 /* Поле Hobby Schedule */
 .schedule-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
 /* Унифицированные стили для инпутов и селектов */
@@ -53,113 +55,153 @@ body {
 .schedule-group select,
 textarea,
 .input-field {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-sizing: border-box; /* Чтобы padding не увеличивал размер */
-    margin-bottom: 15px; /* Отступ снизу между элементами */
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  /* Чтобы padding не увеличивал размер */
+  margin-bottom: 15px;
+  /* Отступ снизу между элементами */
 }
 
 /* Текстовое поле (textarea) */
 textarea {
-    height: 80px;
-    resize: none;
+  height: 80px;
+  resize: none;
 }
 
 /* Кнопка сохранения */
 .save-button {
-    background-color: #1a1aff;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: center;
-    width: 100%;
+  background-color: #1a1aff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
 }
 
 .save-button:hover {
-    background-color: #0000cc;
+  background-color: #0000cc;
 }
 
 /* Для переключателя "I want to receive notifications" */
 .switch-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Контейнер для переключателя */
 .container {
-    width: 51px;
-    height: 31px;
-    position: relative;
+  width: 51px;
+  height: 31px;
+  position: relative;
 }
 
 /* Скрываем стандартный чекбокс */
 .checkbox {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
 }
 
 /* Стиль переключателя */
 .switch {
-    width: 100%;
-    height: 100%;
-    display: block;
-    background-color: #e9e9eb;
-    border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease-out;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: #e9e9eb;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
 }
 
 /* Слайдер переключателя */
 .slider {
-    width: 27px;
-    height: 27px;
-    position: absolute;
-    left: calc(50% - 27px/2 - 10px);
-    top: calc(50% - 27px/2);
-    border-radius: 50%;
-    background: #FFFFFF;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
-    transition: all 0.2s ease-out;
-    cursor: pointer;
+  width: 27px;
+  height: 27px;
+  position: absolute;
+  left: calc(50% - 27px/2 - 10px);
+  top: calc(50% - 27px/2);
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-out;
+  cursor: pointer;
 }
 
 .active {
-    color: #ff5851;
+  color: #ff5851;
 }
 
 /* Когда переключатель активирован */
-.checkbox:checked + .switch {
-    background-color: #34C759;
+.checkbox:checked+.switch {
+  background-color: #34C759;
 }
 
 /* Слайдер переключателя при активации */
-.checkbox:checked + .switch .slider {
-    left: calc(50% - 27px/2 + 10px);
-    top: calc(50% - 27px/2);
+.checkbox:checked+.switch .slider {
+  left: calc(50% - 27px/2 + 10px);
+  top: calc(50% - 27px/2);
 }
 
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
-    .new-hobby-form {
-        padding: 20px;
-        margin-left: 0;
-    }
+  .new-hobby-form {
+    padding: 20px;
+    margin-left: 0;
+  }
 
-    .form-container {
-        width: 100%;
-        padding: 20px;
-    }
+  .form-container {
+    width: 100%;
+    padding: 20px;
+  }
 
-    .save-button {
-        grid-column: span 1;
-    }
+  .save-button {
+    grid-column: span 1;
+  }
+}
+
+.alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.alert-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alert-box p {
+  margin-bottom: 15px;
+}
+
+.alert-box button {
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alert-box button:hover {
+  background: #0056b3;
 }
