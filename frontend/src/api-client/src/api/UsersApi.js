@@ -49,7 +49,7 @@ export default class UsersApi {
      * @param {File} [file] 
      * @param {module:api/UsersApi~apiUsersAvatarPostCallback} callback The callback function, accepting three arguments: error, data, response
      */
-    apiUsersAvatarPost(opts, callback) {
+    apiUsersAvatarPost(jwtToken, opts, callback) {
       opts = opts || {};
       let postBody = null;
 
@@ -58,6 +58,7 @@ export default class UsersApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
         'file': opts['file']
