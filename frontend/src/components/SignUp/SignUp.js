@@ -14,7 +14,7 @@ const SignUp = () => {
 
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const apiClient = new ApiClient("http://89.169.172.168:8080");
+  const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
   const authApi = new AuthApi(apiClient);
 
   const handleChange = (e) => {
@@ -49,8 +49,20 @@ const SignUp = () => {
         if (error) {
           setError(error || 'An error occurred during registration.');
         } else {
-          setSuccess(true);
           console.log('Registration successful:', data);
+
+          authApi.apiAuthLoginPost(
+            {email: formData['email'], password: formData['password']}, (error, data, response) => {
+              if (error) {
+                setError(error || 'An error occurred during login.');
+              } else {
+                setSuccess(true);
+                console.log('Login successful:', data);
+                localStorage.setItem('jwt-token', JSON.stringify(data.token));
+              }
+            }
+          )
+
           navigate('/dashboard');
         }
       }

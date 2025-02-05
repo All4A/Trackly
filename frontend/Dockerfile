@@ -1,20 +1,32 @@
-# pull official base image
-FROM node:13.12.0-alpine
+# Install node.js
+FROM node:16-alpine
 
-  # set working directory
+# Set working directory
 WORKDIR /app
 
-  # add `/app/node_modules/.bin` to $PATH
+# Add `/app/node_modules/.bin` to $PATH
 ENV PATH /app/node_modules/.bin:$PATH
 
-  # install app dependencies
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
+# Install necessary build tools
+RUN apk add --no-cache python3 make g++
 
-  # add app
-COPY . ./
+# Upgrade npm globally
+RUN npm install -g npm@8.19.4
 
-  # start app
-CMD ["npm", "start"]
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+RUN npm install src
+
+# Add app source code
+COPY . ./ 
+
+# Build the app for production
+RUN npm run build
+
+# Expose port 5000 to the outside world
+EXPOSE 5000
+
+# Start the server
+CMD ["npx", "serve", "-s", "build"]

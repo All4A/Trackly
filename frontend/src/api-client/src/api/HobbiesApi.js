@@ -49,7 +49,7 @@ export default class HobbiesApi {
      * @param {module:api/HobbiesApi~apiHabitsGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link Array.<module:model/Habit>}
      */
-    apiHabitsGet(callback) {
+    apiHabitsGet(jwtToken, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -57,6 +57,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };
@@ -128,7 +129,7 @@ export default class HobbiesApi {
      * @param {module:model/HabitUpdate} habitUpdate 
      * @param {module:api/HobbiesApi~apiHabitsHabitIdPutCallback} callback The callback function, accepting three arguments: error, data, response
      */
-    apiHabitsHabitIdPut(habitId, habitUpdate, callback) {
+    apiHabitsHabitIdPut(jwtToken, habitId, habitUpdate, callback) {
       let postBody = habitUpdate;
       // verify the required parameter 'habitId' is set
       if (habitId === undefined || habitId === null) {
@@ -145,6 +146,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };
@@ -174,7 +176,7 @@ export default class HobbiesApi {
      * @param {module:api/HobbiesApi~apiHabitsPostCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/Habit}
      */
-    apiHabitsPost(newHabit, callback) {
+    apiHabitsPost(newHabit, jwtToken, callback) {
       let postBody = newHabit;
       // verify the required parameter 'newHabit' is set
       if (newHabit === undefined || newHabit === null) {
@@ -186,6 +188,7 @@ export default class HobbiesApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };

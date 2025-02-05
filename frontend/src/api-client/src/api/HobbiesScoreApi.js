@@ -48,7 +48,7 @@ export default class HobbiesScoreApi {
      * @param {module:model/ScoreHabit} scoreHabit 
      * @param {module:api/HobbiesScoreApi~apiHabitsHabitIdScorePostCallback} callback The callback function, accepting three arguments: error, data, response
      */
-    apiHabitsHabitIdScorePost(habitId, scoreHabit, callback) {
+    apiHabitsHabitIdScorePost(jwtToken, habitId, scoreHabit, callback) {
       let postBody = scoreHabit;
       // verify the required parameter 'habitId' is set
       if (habitId === undefined || habitId === null) {
@@ -65,6 +65,7 @@ export default class HobbiesScoreApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };

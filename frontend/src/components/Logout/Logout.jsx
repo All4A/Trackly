@@ -5,7 +5,7 @@ export default function Logout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // localStorage.removeItem("authToken");
+    localStorage.removeItem("jwt-token");
     console.log("User logged out successfully");
 
     const timeoutId = setTimeout(() => {navigate("/"); }, 0);
