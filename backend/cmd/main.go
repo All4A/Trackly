@@ -69,6 +69,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	wrapper := api.ServerInterfaceWrapper{
 		Handler: si,
 	}
+	router.Use(middleware.Cors())
 
 	publicGroup := router.Group("")
 	publicGroup.POST("/api/auth/login", wrapper.PostApiAuthLogin)
