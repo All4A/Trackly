@@ -23,6 +23,3 @@ yarn-debug.log*
 yarn-error.log*
 .idea
 docker-compose.exe
-
-.env.development
-.env.production
