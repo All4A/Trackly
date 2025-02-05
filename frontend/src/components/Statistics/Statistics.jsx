@@ -39,13 +39,8 @@ export default function Statistics() {
   const [error, setError] = useState(null);
   const [weeklyData, setWeeklyData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
+  const [totalStats, setTotalStats] = useState({});
   const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
-
-  const personalStatistics = [
-    { icon: faStopwatch, label: "Total time spent", value: 429, unit: "h" },
-    { icon: faChartPie, label: "Average hobby time", value: 1.3, unit: "h / day" },
-    { icon: faArrowUp, label: "Intensity gain", value: "+5.80", unit: "%" }
-  ];
 
   const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
   const hobbyApi = new HobbiesApi(apiClient);
@@ -66,9 +61,7 @@ export default function Statistics() {
         const today = new Date();
         const oneWeekAgo = new Date(today);
         oneWeekAgo.setDate(today.getDate() - 7);
-
         const formatDate = (date) => date.toISOString().split('T')[0];
-
         fetchHabitStatistics(habitId, formatDate(oneWeekAgo), formatDate(today), "day")
           .then(data => {
             if (data.groupBy === "day") {
@@ -81,10 +74,18 @@ export default function Statistics() {
             console.error("Error fetching statistics:", err);
             setError("Failed to fetch statistics. Please check your internet connection or try again later.");
           });
+
+        fetchTotalHobbyStatistics(habitId)
+          .then(data => setTotalStats(data))
+          .catch(err => {
+            console.error("Error fetching total statistics:", err);
+            setError("Failed to fetch total statistics. Please check your internet connection or try again later.");
+          });
+      } else {
+        setWeeklyData([]);
+        setMonthlyData([]);
+        setTotalStats({});
       }
-    } else {
-      setWeeklyData([]);
-      setMonthlyData([]);
     }
   }, [selectedHobby, hobbies]);
 
@@ -114,6 +115,31 @@ export default function Statistics() {
       return data;
     } catch (error) {
       console.error('Error fetching habit statistics:', error);
+      throw error;
+    }
+  };
+
+  const fetchTotalHobbyStatistics = async (habitId) => {
+    const url = `${process.env.REACT_APP_API_BASE_URL}/api/habits/${habitId}/statistic/total`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorMessage}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching total habit statistics:', error);
       throw error;
     }
   };
@@ -171,6 +197,12 @@ export default function Statistics() {
     };
     return <Line data={data} options={options} />;
   };
+
+  const personalStatistics = [
+    { icon: faStopwatch, label: "Total time spent", value: (totalStats.total / 60).toFixed(1) || 0, unit: "h" },
+    { icon: faChartPie, label: "Average hobby time", value: (totalStats.averagePerDay / 60).toFixed(1) || 0, unit: "h / day" },
+    { icon: faArrowUp, label: "Intensity gain", value: "+5.80", unit: "%" }
+  ];
 
   return (
     <div className="statistics-container">
