@@ -88,7 +88,7 @@ export default class UsersApi {
      * @param {module:api/UsersApi~apiUsersProfileGetCallback} callback The callback function, accepting three arguments: error, data, response
      * data is of type: {@link module:model/UserProfile}
      */
-    apiUsersProfileGet(callback) {
+    apiUsersProfileGet(jwtToken, callback) {
       let postBody = null;
 
       let pathParams = {
@@ -96,6 +96,7 @@ export default class UsersApi {
       let queryParams = {
       };
       let headerParams = {
+        Authorization: `Bearer ${jwtToken}`,
       };
       let formParams = {
       };
