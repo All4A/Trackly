@@ -17,6 +17,8 @@ RUN npm install -g npm@8.19.4
 COPY package*.json ./
 RUN npm install
 
+RUN npm install src
+
 # Add app source code
 COPY . ./ 
 
