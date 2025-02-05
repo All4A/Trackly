@@ -32,27 +32,27 @@ export default function HobbyGrid({ hobbies }) {
   const openProgressForm = (hobby) => {
     setSelectedHobby(hobby);
     setInputValue("");
-    setUnit(
+    const defaultUnit =
       hobby.currentPlan.planUnit === "distance"
         ? "km"
         : hobby.currentPlan.planUnit === "time"
         ? "min"
-        : "times"
-    );
+        : "times";
+    setUnit(defaultUnit);
   };
 
   const handleProgressSubmit = () => {
     if (!inputValue || isNaN(inputValue) || Number(inputValue) <= 0) return;
-  
+
     let progress = Number(inputValue);
-  
+
     const updatedHobbies = hobbiesState.map((hobby) => {
       if (hobby.id === selectedHobby.id) {
         const updatedHobby = {
           ...hobby,
           todayValue: hobby.todayValue + progress,
         };
-  
+
         hobbyScoreApi.apiHabitsHabitIdScorePost(
           jwtToken,
           updatedHobby.id,
@@ -69,12 +69,12 @@ export default function HobbyGrid({ hobbies }) {
             }
           }
         );
-  
+
         return updatedHobby;
       }
       return hobby;
     });
-  
+
     setHobbiesState(updatedHobbies);
     setSelectedHobby(null);
   };
@@ -93,7 +93,7 @@ export default function HobbyGrid({ hobbies }) {
             : planUnit === "count"
             ? "times"
             : "";
-
+            
         return (
           <div
             key={id}
@@ -134,7 +134,6 @@ export default function HobbyGrid({ hobbies }) {
           </div>
         );
       })}
-
       {selectedHobby && (
         <div className="modal">
           <div className="modal-content">
@@ -146,17 +145,11 @@ export default function HobbyGrid({ hobbies }) {
               placeholder="Enter progress"
             />
             <select value={unit} onChange={(e) => setUnit(e.target.value)}>
-              {unitOptions[selectedHobby.currentPlan.planUnit].map(
-                (option) => (
-                  <option key={option} value={option}>
-                    {option === "h"
-                      ? "Hours"
-                      : option === "km"
-                      ? "Kilometers"
-                      : "Times"}
-                  </option>
-                )
-              )}
+              {unitOptions[selectedHobby.currentPlan.planUnit]?.map((option) => (
+                <option key={option} value={option}>
+                  {option === "min" ? "Minutes" : option === "km" ? "Kilometers" : "Times"}
+                </option>
+              ))}
             </select>
             <button onClick={handleProgressSubmit}>Submit</button>
             <button onClick={() => setSelectedHobby(null)}>Cancel</button>
