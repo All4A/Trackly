@@ -20,8 +20,6 @@ type CommonScopeOption = scopeFn
 func InitDB(cfg *config.DbConfig) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DbName)
-	println("my db" + dsn)
-	println("my db" + dsn)
 	retryConnectCount := 5
 	var db *gorm.DB
 	var conErr error
