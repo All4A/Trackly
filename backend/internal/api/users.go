@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/minio/minio-go/v7"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"trackly-backend/internal/config"
@@ -46,10 +47,11 @@ func (a UserApi) PostApiAuthLogin(c echo.Context) error {
 		return err
 	}
 
-	if req.Password != userFromDb.Password {
+	err = bcrypt.CompareHashAndPassword([]byte(userFromDb.Password), []byte(req.Password))
+	if err != nil {
 		return c.JSON(http.StatusUnauthorized, ErrorResponse{
 			Code:    http.StatusUnauthorized,
-			Message: "invalid credentials",
+			Message: "Invalid credentials",
 		})
 	}
 
@@ -73,9 +75,15 @@ func (a UserApi) PostApiAuthRegister(ctx echo.Context) error {
 		return ctx.JSON(http.StatusConflict, map[string]string{"error": "User with this email already exists"})
 	}
 
+	// Хешируем пароль
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*registerRequest.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to hash password"})
+	}
+
 	user := models.User{
 		Username: *registerRequest.Username,
-		Password: *registerRequest.Password,
+		Password: string(hashedPassword),
 		Email:    string(*registerRequest.Email),
 	}
 	err = a.userRepo.CreateUser(&user)
