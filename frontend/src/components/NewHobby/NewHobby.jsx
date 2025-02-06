@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ApiClient from '../../api-client/src/ApiClient';
 import HobbiesApi from '../../api-client/src/api/HobbiesApi';
-import NewHabit from '../../api-client/src/model/NewHabit';
-import Plan from '../../api-client/src/model/Plan';
 import PlanUnit from '../../api-client/src/model/PlanUnit';
 import Header from "../Header";
 import NavItem from "../NavItem";
@@ -17,7 +15,7 @@ const NAV_ITEMS = [
   { icon: "log_out_inactive.png", label: "Log out", id: "logout", path: "/logout" }
 ];
 
-function NewHobby() {
+const NewHobby = () => {
   const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
   const currentLocation = useLocation();
   const planUnit = new PlanUnit();
@@ -145,4 +143,4 @@ function NewHobby() {
     </div>
   );
 }
-export default NewHobby();
+export default NewHobby;
