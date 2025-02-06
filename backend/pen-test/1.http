@@ -54,7 +54,7 @@ Authorization: Bearer {{auth_token}}
   "name": "string",
   "plan": {
     "planUnit": "distance",
-    "goal": 0
+    "goal": 333
   },
   "description": "string",
   "notifications": true
@@ -106,8 +106,7 @@ Authorization: Bearer {{auth_token}}
 
 
 ###
-GET http://localhost:8080/api/habits/1/statistic?date-from=2025-01-01&date-to=2026-01-01&group-by=day
+http://localhost:8080/api/habits/1/statistic?date-from=2025-01-30&date-to=2025-02-06&group-by=day
 accept: application/json
 Authorization: Bearer {{auth_token}}
 ###
-
