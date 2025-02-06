@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-
 import ApiClient from '../../api-client/src/ApiClient';
 import HobbiesScoreApi from '../../api-client/src/api/HobbiesScoreApi';
-
 import "./styles/HobbyGrid.css";
 
 export default function HobbyGrid({ hobbies }) {

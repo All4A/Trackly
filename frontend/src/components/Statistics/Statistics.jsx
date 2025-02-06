@@ -45,60 +45,6 @@ export default function Statistics() {
   const apiClient = new ApiClient(process.env.REACT_APP_API_BASE_URL);
   const hobbyApi = new HobbiesApi(apiClient);
 
-  useEffect(() => {
-    setLoading(true);
-    hobbyApi.apiHabitsGet(jwtToken, (error, data) => {
-      setLoading(false);
-      if (error) setError(error || 'An error occurred during downloading user hobbies.');
-      else setHobbies(data);
-    });
-  }, [jwtToken]);
-
-  useEffect(() => {
-    if (selectedHobby && selectedHobby !== "none") {
-      const habitId = hobbies.find(hobby => hobby.name === selectedHobby)?.id;
-      if (habitId) {
-        const today = new Date();
-
-        const oneWeekAgo = new Date(today);
-        oneWeekAgo.setDate(today.getDate() - 7);
-
-        const oneMonthAgo = new Date(today);
-        oneMonthAgo.setDate(today.getDate() - 31)
-
-        const startDate = [oneWeekAgo, oneMonthAgo];
-
-        for (let i = 0; i < 2; i++)
-        {
-          const formatDate = (date) => date.toISOString().split('T')[0];
-          fetchHabitStatistics(habitId, formatDate(startDate[i]), formatDate(today), "day")
-            .then(data => {
-              if (i == 0) {
-                setWeeklyData(data.period);
-              } else if (i == 1) {
-                setMonthlyData(data.period);
-              }
-            })
-            .catch(err => {
-              console.error("Error fetching statistics:", err);
-              setError("Failed to fetch statistics. Please check your internet connection or try again later.");
-            });
-        }
-
-        fetchTotalHobbyStatistics(habitId)
-          .then(data => setTotalStats(data))
-          .catch(err => {
-            console.error("Error fetching total statistics:", err);
-            setError("Failed to fetch total statistics. Please check your internet connection or try again later.");
-          });
-      } else {
-        setWeeklyData([]);
-        setMonthlyData([]);
-        setTotalStats({});
-      }
-    }
-  }, [selectedHobby, hobbies]);
-
   const fetchHabitStatistics = async (habitId, dateFrom, dateTo, groupBy) => {
     const url = `${process.env.REACT_APP_API_BASE_URL}/api/habits/${habitId}/statistic`;
     const params = new URLSearchParams({
@@ -129,6 +75,15 @@ export default function Statistics() {
     }
   };
 
+  useEffect(() => {
+    setLoading(true);
+    hobbyApi.apiHabitsGet(jwtToken, (error, data) => {
+      setLoading(false);
+      if (error) setError(error || 'An error occurred during downloading user hobbies.');
+      else setHobbies(data);
+    });
+  }, [jwtToken]);
+
   const fetchTotalHobbyStatistics = async (habitId) => {
     const url = `${process.env.REACT_APP_API_BASE_URL}/api/habits/${habitId}/statistic/total`;
 
@@ -154,67 +109,111 @@ export default function Statistics() {
     }
   };
 
-  const renderNavItems = () =>
-    NAV_ITEMS.map(({ icon, label, id, path }) => (
-      <NavItem key={id} icon={icon} label={label} isActive={currentLocation.pathname === path} to={path} />
-    ));
+  useEffect(() => {
+    if (selectedHobby && selectedHobby !== "none") {
+      const habitId = hobbies.find(hobby => hobby.name === selectedHobby)?.id;
+      if (habitId) {
+        const today = new Date();
 
-    const WeeklyActivityChart = () => {
-      const maxValue = Math.max(...weeklyData.map(item => item.value));
-      const data = {
-        labels: weeklyData.map(item => item.interval),
-        datasets: [{
-          label: 'Activity',
-          data: weeklyData.map(item => item.value),
-          backgroundColor: 'rgba(255, 102, 0, 0.6)',
-          borderColor: 'rgba(255, 102, 0, 1)',
-          borderWidth: 1,
-        }],
-      };
-      const options = {
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: maxValue > 100 ? maxValue : 100,
-            ticks: { callback: (value) => `${value}%` },
-          },
-        },
-        plugins: { legend: { position: 'top' } },
-      };
-      return <Bar data={data} options={options} />;
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);
+
+        const oneMonthAgo = new Date(today);
+        oneMonthAgo.setDate(today.getDate() - 31)
+
+        const startDate = [oneWeekAgo, oneMonthAgo];
+
+        for (let i = 0; i < 2; i++) {
+          const formatDate = (date) => date.toISOString().split('T')[0];
+          fetchHabitStatistics(habitId, formatDate(startDate[i]), formatDate(today), "day")
+            .then(data => {
+              if (i == 0) {
+                setWeeklyData(data.period);
+              } else if (i == 1) {
+                setMonthlyData(data.period);
+              }
+            })
+            .catch(err => {
+              console.error("Error fetching statistics:", err);
+              setError("Failed to fetch statistics.");
+            });
+        }
+
+        fetchTotalHobbyStatistics(habitId)
+          .then(data => setTotalStats(data))
+          .catch(err => {
+            console.error("Error fetching total statistics:", err);
+            setError("Failed to fetch total statistics.");
+          });
+      } else {
+        setWeeklyData([]);
+        setMonthlyData([]);
+        setTotalStats({});
+      }
+    }
+  }, [selectedHobby, hobbies]);
+
+  const WeeklyActivityChart = () => {
+    const maxValue = Math.max(...weeklyData.map(item => item.value));
+    const data = {
+      labels: weeklyData.map(item => item.interval),
+      datasets: [{
+        label: 'Activity',
+        data: weeklyData.map(item => item.value),
+        backgroundColor: 'rgba(255, 102, 0, 0.6)',
+        borderColor: 'rgba(255, 102, 0, 1)',
+        borderWidth: 1,
+      }],
     };
-    
-    const MonthlyHistoryChart = () => {
-      const maxValue = Math.max(...monthlyData.map(item => item.value));
-      const data = {
-        labels: monthlyData.map(item => item.interval),
-        datasets: [{
-          label: 'Activity',
-          data: monthlyData.map(item => item.value),
-          fill: true,
-          backgroundColor: 'rgba(0, 105, 148, 0.2)',
-          borderColor: 'rgba(0, 105, 148, 1)',
-          borderWidth: 1,
-        }],
-      };
-      const options = {
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: maxValue > 100 ? maxValue : 100,
-            ticks: { callback: (value) => `${value}%` },
-          },
+    const options = {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: maxValue > 100 ? maxValue : 100,
+          ticks: { callback: (value) => `${value}%` },
         },
-        plugins: { legend: { position: 'top' } },
-      };
-      return <Line data={data} options={options} />;
+      },
+      plugins: { legend: { position: 'top' } },
     };
+    return <Bar data={data} options={options} />;
+  };
+
+  const MonthlyHistoryChart = () => {
+    const maxValue = Math.max(...monthlyData.map(item => item.value));
+    const data = {
+      labels: monthlyData.map(item => item.interval),
+      datasets: [{
+        label: 'Activity',
+        data: monthlyData.map(item => item.value),
+        fill: true,
+        backgroundColor: 'rgba(0, 105, 148, 0.2)',
+        borderColor: 'rgba(0, 105, 148, 1)',
+        borderWidth: 1,
+      }],
+    };
+    const options = {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: maxValue > 100 ? maxValue : 100,
+          ticks: { callback: (value) => `${value}%` },
+        },
+      },
+      plugins: { legend: { position: 'top' } },
+    };
+    return <Line data={data} options={options} />;
+  };
 
   const personalStatistics = [
     { icon: faStopwatch, label: "Total time spent", value: (totalStats.total / 60).toFixed(1) || 0, unit: "h" },
     { icon: faChartPie, label: "Average hobby time", value: (totalStats.averagePerDay / 60).toFixed(1) || 0, unit: "h / day" },
     { icon: faArrowUp, label: "Intensity gain", value: "+5.80", unit: "%" }
   ];
+
+  const renderNavItems = () =>
+    NAV_ITEMS.map(({ icon, label, id, path }) => (
+      <NavItem key={id} icon={icon} label={label} isActive={currentLocation.pathname === path} to={path} />
+    ));
 
   return (
     <div className="statistics-container">
