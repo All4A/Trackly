@@ -32,6 +32,15 @@ func (a UserApi) PostApiAuthLogin(c echo.Context) error {
 		})
 	}
 
+	// существует ли такая почта или просто пустой пользователей
+	userFromDb, er := a.userRepo.FindUserByEmail(string(req.Email))
+	if er != nil || userFromDb == nil {
+		return c.JSON(http.StatusUnauthorized, ErrorResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "User with this email doesn't exist",
+		})
+	}
+
 	userFromDb, err := a.userRepo.FindUserByEmail(string(req.Email))
 	if err != nil {
 		return err
@@ -57,6 +66,13 @@ func (a UserApi) PostApiAuthRegister(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
+
+	// Существует ли уже такой емейл?
+	existingUser, err := a.userRepo.FindUserByEmail(string(*registerRequest.Email))
+	if err == nil && existingUser != nil {
+		return ctx.JSON(http.StatusConflict, map[string]string{"error": "User with this email already exists"})
+	}
+
 	user := models.User{
 		Username: *registerRequest.Username,
 		Password: *registerRequest.Password,
@@ -105,6 +121,11 @@ func (a UserApi) PutApiUsersProfile(ctx echo.Context) error {
 		user.Username = *updateRequest.Username
 	}
 	if *updateRequest.Email != "" {
+		existingUser, err := a.userRepo.FindUserByEmail(string(*updateRequest.Email))
+		if err == nil && existingUser != nil && existingUser.ID != userID {
+			// Если email уже занят другим пользователем
+			return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "email is already in use"})
+		}
 		user.Email = *updateRequest.Email
 	}
 	if !updateRequest.DateOfBirth.IsZero() {
