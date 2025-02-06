@@ -49,7 +49,6 @@ function EditProfileForm() {
           city: data.City,
           password: data.password,
         });
-        console.log(userProfileData.email)
       })
       .catch((error) => {
         console.error("Error fetching user profile:", error);

@@ -1,9 +1,45 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import "./Header.css";
 
 export default function Header() {
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [error, setError] = useState(null);
+
+  const jwtToken = JSON.parse(localStorage.getItem("jwt-token"));
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        if (!jwtToken) {
+          throw new Error("JWT token not found.");
+        }
+
+        const response = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/api/users/avatar`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${jwtToken}` },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile picture.");
+        }
+
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
+        setPreviewUrl(imageUrl);
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+        setError(error.message || "An error occurred while fetching the profile picture.");
+      }
+    };
+
+    fetchProfilePicture();
+  }, []);
+
   return (
     <header className="header">
       <div className="logo-container">
@@ -38,11 +74,13 @@ export default function Header() {
         <Link to="/accounts" aria-label="Profile" className="button-secondary">
           <img
             loading="lazy"
-            src="profile.png"
+            src={previewUrl || "profile.png"}
             alt="Profile"
+            className="profile-picture-sm"
           />
         </Link>
       </div>
+      {error && <div className="error-message">{error}</div>}
     </header>
   );
 }
