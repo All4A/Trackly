@@ -80,7 +80,6 @@ export default function Header() {
           />
         </Link>
       </div>
-      {error && <div className="error-message">{error}</div>}
     </header>
   );
 }
