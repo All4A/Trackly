@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './SignIn.css';
 import ApiClient from '../../api-client/src/ApiClient';
 import AuthApi from '../../api-client/src/api/AuthApi';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -28,21 +28,21 @@ const SignIn = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-      e.preventDefault();
-      setLoading(true);
-      setError(null);
-      authApi.apiAuthLoginPost(formData, (error, data, response) => {
-        setLoading(false);
-        if (error) {
-          setError(error || 'An error occurred during logging in.');
-        } else {
-          setSuccess(true);
-          console.log('Login successful:', data);
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    authApi.apiAuthLoginPost(formData, (error, data, response) => {
+      setLoading(false);
+      if (error) {
+        setError(error || 'An error occurred during logging in.');
+      } else {
+        setSuccess(true);
+        console.log('Login successful:', data);
 
-          localStorage.setItem('jwt-token', JSON.stringify(data.token));
-          navigate('/dashboard');
-        }
+        localStorage.setItem('jwt-token', JSON.stringify(data.token));
+        navigate('/dashboard');
       }
+    }
     )
   };
 
