@@ -30,10 +30,11 @@ func InitDB(cfg *config.DbConfig) (*gorm.DB, error) {
 		if err != nil {
 			conErr = err
 			time.Sleep(5 * time.Second)
+			continue
 		}
 		db = database
 		conErr = nil
-
+		break
 	}
 	if conErr != nil {
 		return nil, conErr
