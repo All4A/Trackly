@@ -159,54 +159,56 @@ export default function Statistics() {
       <NavItem key={id} icon={icon} label={label} isActive={currentLocation.pathname === path} to={path} />
     ));
 
-  const WeeklyActivityChart = () => {
-    const data = {
-      labels: weeklyData.map(item => item.interval),
-      datasets: [{
-        label: 'Activity',
-        data: weeklyData.map(item => item.value),
-        backgroundColor: 'rgba(255, 102, 0, 0.6)',
-        borderColor: 'rgba(255, 102, 0, 1)',
-        borderWidth: 1,
-      }],
-    };
-    const options = {
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: { callback: (value) => `${value}%` },
+    const WeeklyActivityChart = () => {
+      const maxValue = Math.max(...weeklyData.map(item => item.value));
+      const data = {
+        labels: weeklyData.map(item => item.interval),
+        datasets: [{
+          label: 'Activity',
+          data: weeklyData.map(item => item.value),
+          backgroundColor: 'rgba(255, 102, 0, 0.6)',
+          borderColor: 'rgba(255, 102, 0, 1)',
+          borderWidth: 1,
+        }],
+      };
+      const options = {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: maxValue > 100 ? maxValue : 100,
+            ticks: { callback: (value) => `${value}%` },
+          },
         },
-      },
-      plugins: { legend: { position: 'top' } },
+        plugins: { legend: { position: 'top' } },
+      };
+      return <Bar data={data} options={options} />;
     };
-    return <Bar data={data} options={options} />;
-  };
-
-  const MonthlyHistoryChart = () => {
-    const data = {
-      labels: monthlyData.map(item => item.interval),
-      datasets: [{
-        label: 'Activity',
-        data: monthlyData.map(item => item.value),
-        fill: true,
-        backgroundColor: 'rgba(0, 105, 148, 0.2)',
-        borderColor: 'rgba(0, 105, 148, 1)',
-        borderWidth: 1,
-      }],
-    };
-    const options = {
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: { callback: (value) => `${value}%` },
+    
+    const MonthlyHistoryChart = () => {
+      const maxValue = Math.max(...monthlyData.map(item => item.value));
+      const data = {
+        labels: monthlyData.map(item => item.interval),
+        datasets: [{
+          label: 'Activity',
+          data: monthlyData.map(item => item.value),
+          fill: true,
+          backgroundColor: 'rgba(0, 105, 148, 0.2)',
+          borderColor: 'rgba(0, 105, 148, 1)',
+          borderWidth: 1,
+        }],
+      };
+      const options = {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: maxValue > 100 ? maxValue : 100,
+            ticks: { callback: (value) => `${value}%` },
+          },
         },
-      },
-      plugins: { legend: { position: 'top' } },
+        plugins: { legend: { position: 'top' } },
+      };
+      return <Line data={data} options={options} />;
     };
-    return <Line data={data} options={options} />;
-  };
 
   const personalStatistics = [
     { icon: faStopwatch, label: "Total time spent", value: (totalStats.total / 60).toFixed(1) || 0, unit: "h" },
