@@ -57,15 +57,9 @@ type Habit struct {
 
 // HabitStatisticResponse defines model for HabitStatisticResponse.
 type HabitStatisticResponse struct {
-	GroupBy *StatisticGroupBy `json:"groupBy,omitempty"`
-	Period  *[]struct {
-		// Interval тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами
-		Interval *string `json:"interval,omitempty"`
-
-		// Value тут приходит значение в зависимости от типа
-		Value *int `json:"value,omitempty"`
-	} `json:"period,omitempty"`
-	PlanUnit *PlanUnit `json:"planUnit,omitempty"`
+	GroupBy  StatisticGroupBy `json:"groupBy"`
+	Period   []PeriodValue    `json:"period"`
+	PlanUnit PlanUnit         `json:"planUnit"`
 }
 
 // HabitStatisticTotalResponse defines model for HabitStatisticTotalResponse.
@@ -100,6 +94,15 @@ type NewHabit struct {
 	Name          string  `json:"name"`
 	Notifications *bool   `json:"notifications,omitempty"`
 	Plan          Plan    `json:"plan"`
+}
+
+// PeriodValue defines model for PeriodValue.
+type PeriodValue struct {
+	// Interval тут приходит в зависимости от типа, условно если мы выбрали день, то приходят дни недели, если месяц, то месяца, аналогично с годами
+	Interval string `json:"interval"`
+
+	// Value тут приходит значение в зависимости от типа
+	Value int `json:"value"`
 }
 
 // Plan defines model for Plan.
