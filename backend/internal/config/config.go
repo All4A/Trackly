@@ -50,9 +50,9 @@ func LoadConfig(filePath string) (*Config, error) {
 		Database: DbConfig{
 			Host:     getEnv("DB_HOST", config.Database.Host),
 			Port:     getEnv("DB_PORT", config.Database.Port),
-			Username: getEnv("DB_USERNAME", config.Database.Username),
-			Password: getEnv("DB_PASSWORD", config.Database.Password),
-			DbName:   getEnv("DB_NAME", config.Database.DbName),
+			Username: getEnv("POSTGRES_USER", config.Database.Username),
+			Password: getEnv("POSTGRES_PASSWORD", config.Database.Password),
+			DbName:   getEnv("POSTGRES_DB", config.Database.DbName),
 		},
 		JwtSecret: getEnv("JWT_SECRET", config.JwtSecret),
 		MinioConfig: MinioConfig{
