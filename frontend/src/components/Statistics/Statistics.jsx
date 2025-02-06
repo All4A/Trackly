@@ -59,21 +59,31 @@ export default function Statistics() {
       const habitId = hobbies.find(hobby => hobby.name === selectedHobby)?.id;
       if (habitId) {
         const today = new Date();
+
         const oneWeekAgo = new Date(today);
         oneWeekAgo.setDate(today.getDate() - 7);
-        const formatDate = (date) => date.toISOString().split('T')[0];
-        fetchHabitStatistics(habitId, formatDate(oneWeekAgo), formatDate(today), "day")
-          .then(data => {
-            if (data.groupBy === "day") {
-              setWeeklyData(data.period);
-            } else if (data.groupBy === "month") {
-              setMonthlyData(data.period);
-            }
-          })
-          .catch(err => {
-            console.error("Error fetching statistics:", err);
-            setError("Failed to fetch statistics. Please check your internet connection or try again later.");
-          });
+
+        const oneMonthAgo = new Date(today);
+        oneMonthAgo.setDate(today.getDate() - 31)
+
+        const startDate = [oneWeekAgo, oneMonthAgo];
+
+        for (let i = 0; i < 2; i++)
+        {
+          const formatDate = (date) => date.toISOString().split('T')[0];
+          fetchHabitStatistics(habitId, formatDate(startDate[i]), formatDate(today), "day")
+            .then(data => {
+              if (i == 0) {
+                setWeeklyData(data.period);
+              } else if (i == 1) {
+                setMonthlyData(data.period);
+              }
+            })
+            .catch(err => {
+              console.error("Error fetching statistics:", err);
+              setError("Failed to fetch statistics. Please check your internet connection or try again later.");
+            });
+        }
 
         fetchTotalHobbyStatistics(habitId)
           .then(data => setTotalStats(data))
