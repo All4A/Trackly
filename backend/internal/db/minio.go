@@ -5,6 +5,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
+	"time"
 	"trackly-backend/internal/config"
 )
 
@@ -13,15 +14,29 @@ type MinioClient struct {
 }
 
 func NewMinioClient(cfg *config.Config) (*MinioClient, error) {
-	client, err := minio.New(cfg.MinioConfig.MinioEndpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.MinioConfig.MinioRootUser, cfg.MinioConfig.MinioRootPassword, ""),
-		Secure: cfg.MinioConfig.MinioUseSSL,
-	})
-	if err != nil {
-		return nil, err
+	retryConnectCount := 5
+	var client *minio.Client
+	var conErr error
+	for i := 0; i < retryConnectCount; i++ {
+		c, err := minio.New(cfg.MinioConfig.MinioEndpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(cfg.MinioConfig.MinioRootUser, cfg.MinioConfig.MinioRootPassword, ""),
+			Secure: cfg.MinioConfig.MinioUseSSL,
+		})
+		if err != nil {
+			conErr = err
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		client = c
+		conErr = nil
+		break
+
+	}
+	if conErr != nil {
+		return nil, conErr
 	}
 
-	err = initMinio(context.Background(), cfg, client)
+	err := initMinio(context.Background(), cfg, client)
 	if err != nil {
 		return nil, err
 	}
