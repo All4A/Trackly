@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/labstack/echo/v4"
+	gomiddleware "github.com/labstack/echo/v4/middleware"
 	"log"
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
@@ -69,6 +70,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	wrapper := api.ServerInterfaceWrapper{
 		Handler: si,
 	}
+	router.Use(gomiddleware.Logger())
 	router.Use(middleware.Cors())
 
 	publicGroup := router.Group("")
