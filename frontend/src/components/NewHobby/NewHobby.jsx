@@ -60,7 +60,7 @@ const NewHobby = () => {
     } else if (name === 'goal') {
       setFormData((prev) => ({
         ...prev,
-        plan: { ...prev.plan, goal: parseInt(value, 10) || 1 },
+        plan: { ...prev.plan, goal: parseInt(value, 10) },
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
