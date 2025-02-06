@@ -9,27 +9,45 @@
   position: fixed;
   z-index: 1;
 }
-
+@media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+  }
+}
 .header .logo-container {
   display: flex;
   gap: 1.25rem;
   white-space: nowrap;
   color: #475569;
 }
-
+@media (max-width: 768px) {
+  .header .logo-container {
+    gap: 0.75rem;
+  }
+}
 .header .logo-container .logo-text {
   font-size: clamp(1.5rem, 2vw, 2rem);
   font-weight: bold;
   display: flex;
   align-items: center;
 }
-
+@media (max-width: 768px) {
+  .header .logo-container .logo-text {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+  }
+}
 .header .logo-container img {
   object-fit: contain;
   width: 33px;
   height: 33px;
 }
-
+@media (max-width: 768px) {
+  .header .logo-container img {
+    width: 25px;
+    height: 25px;
+  }
+}
 .header .overview {
   flex-grow: 1;
   text-align: left;
@@ -37,39 +55,52 @@
   font-size: clamp(1.875rem, 2.5vw, 2.5rem);
   font-weight: 600;
 }
-
+@media (max-width: 768px) {
+  .header .overview {
+    margin-left: 0;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
 .header .actions {
   display: flex;
   gap: clamp(1rem, 2vw, 2rem);
   align-items: center;
 }
-
+@media (max-width: 768px) {
+  .header .actions {
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
 .header .actions .search-bar {
   margin-right: 1rem;
 }
-
+@media (max-width: 768px) {
+  .header .actions .search-bar {
+    margin-right: 0;
+    flex: 1;
+  }
+}
 .header .actions button {
   background: none;
   border: none;
   cursor: pointer;
 }
-
 .header .actions button img {
-  width: clamp(30px, 4vw, 50px);
   height: auto;
 }
-
 .logo-link {
   text-decoration: none;
   color: inherit;
   display: flex;
   align-items: center;
 }
-
 .logo-link:hover {
   text-decoration: none;
 }
-
 .button-secondary {
   background: none;
   border: none;
@@ -79,8 +110,14 @@
   align-items: center;
   justify-content: center;
 }
-
 .button-secondary img {
   width: 50px;
   height: 50px;
+  margin-top: 0px;
+}
+@media (max-width: 768px) {
+  .button-secondary img {
+    width: 35px;
+    height: 35px;
+  }
 }

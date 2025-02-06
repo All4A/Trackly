@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ApiClient from '../../api-client/src/ApiClient';
 import HobbiesApi from '../../api-client/src/api/HobbiesApi';
-import NewHabit from '../../api-client/src/model/NewHabit';
-import Plan from '../../api-client/src/model/Plan';
 import PlanUnit from '../../api-client/src/model/PlanUnit';
 import Header from "../Header";
 import NavItem from "../NavItem";
@@ -17,13 +15,18 @@ const NAV_ITEMS = [
   { icon: "log_out_inactive.png", label: "Log out", id: "logout", path: "/logout" }
 ];
 
-function NewHobby() {
+const NewHobby = () => {
   const jwtToken = JSON.parse(localStorage.getItem('jwt-token'));
   const currentLocation = useLocation();
   const planUnit = new PlanUnit();
-  const plan = new Plan({ goal: 1, planUnit: planUnit.time });
 
-  const [formData, setFormData] = useState({ ...new NewHabit('', plan), notifications: false });
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    plan: { goal: 1, planUnit: planUnit.time },
+    notifications: false,
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -35,6 +38,7 @@ function NewHobby() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     hobbyApi.apiHabitsPost(formData, jwtToken, (error, data) => {
       setLoading(false);
       if (error) setError(error || 'An error occurred during uploading the hobby.');
@@ -46,15 +50,21 @@ function NewHobby() {
   };
 
   const handleChange = ({ target: { name, type, checked, value } }) => {
-    const updatePlan = (key, val) => setFormData((prev) => ({
-      ...prev,
-      plan: { ...prev.plan, [key]: val }
-    }));
-
-    if (type === 'checkbox') setFormData((prev) => ({ ...prev, [name]: checked }));
-    else if (name === 'planUnit') updatePlan('planUnit', value);
-    else if (name === 'goal') updatePlan('goal', parseInt(value, 10));
-    else setFormData((prev) => ({ ...prev, [name]: value }));
+    if (type === 'checkbox') {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (name === 'planUnit') {
+      setFormData((prev) => ({
+        ...prev,
+        plan: { ...prev.plan, planUnit: value },
+      }));
+    } else if (name === 'goal') {
+      setFormData((prev) => ({
+        ...prev,
+        plan: { ...prev.plan, goal: parseInt(value, 10) },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const renderNavItems = () =>
@@ -70,10 +80,24 @@ function NewHobby() {
         <div className="form-container">
           <h2 className="form-title">Create a New Hobby</h2>
           <label>Hobby Name</label>
-          <input name="name" value={formData.name} type="text" placeholder="What is your new interest?" className="input-field" onChange={handleChange} />
+          <input
+            name="name"
+            value={formData.name}
+            type="text"
+            placeholder="What is your new interest?"
+            className="input-field"
+            onChange={handleChange}
+          />
           <label>Hobby Schedule</label>
           <div className="schedule-group">
-            <input type="number" defaultValue="1" className="input-field" name="goal" value={formData.plan.goal} onChange={handleChange} />
+            <input
+              type="number"
+              defaultValue="1"
+              className="input-field"
+              name="goal"
+              value={formData.plan.goal}
+              onChange={handleChange}
+            />
             <select name="planUnit" value={formData.plan.planUnit} onChange={handleChange}>
               <option value={planUnit.time}>minutes per day</option>
               <option value={planUnit.distance}>km per day</option>
@@ -81,19 +105,33 @@ function NewHobby() {
             </select>
           </div>
           <label>Description</label>
-          <textarea placeholder="Describe your hobby..." name="description" value={formData.description} onChange={handleChange} />
+          <textarea
+            placeholder="Describe your hobby..."
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+          />
           <label className="switch-label">
             I want to receive notifications
             <div className="container">
-              <input type="checkbox" className="checkbox" id="checkbox" name="notifications" checked={formData.notifications} onChange={handleChange} />
-              <label className="switch" htmlFor="checkbox"><span className="slider"></span></label>
+              <input
+                type="checkbox"
+                className="checkbox"
+                id="checkbox"
+                name="notifications"
+                checked={formData.notifications}
+                onChange={handleChange}
+              />
+              <label className="switch" htmlFor="checkbox">
+                <span className="slider"></span>
+              </label>
             </div>
           </label>
-          <button type="submit" className="save-button">Save</button>
+          <button type="submit" className="save-button">
+            Save
+          </button>
         </div>
       </form>
-
-      {/* Pop-Up Alert */}
       {showAlert && (
         <div className="alert-overlay">
           <div className="alert-box">
@@ -105,5 +143,4 @@ function NewHobby() {
     </div>
   );
 }
-
 export default NewHobby;

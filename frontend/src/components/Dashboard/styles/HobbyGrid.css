@@ -4,6 +4,12 @@
   gap: 1rem;
 }
 
+@media (max-width: 768px) {
+  .hobby-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .hobby-card {
   position: relative;
   overflow: hidden;
@@ -40,6 +46,12 @@
   margin: 0;
 }
 
+@media (max-width: 768px) {
+  .hobby-title h2 {
+    font-size: 18px;
+  }
+}
+
 .hobby-details {
   display: flex;
   justify-content: space-between;
@@ -53,6 +65,12 @@
 .hobby-details p {
   font-size: 18px;
   margin: 0;
+}
+
+@media (max-width: 768px) {
+  .hobby-details p {
+    font-size: 14px;
+  }
 }
 
 .hobby-progress {
@@ -80,7 +98,6 @@
   transition: width 0.3s ease;
 }
 
-/* Модальное окно */
 .modal {
   position: fixed;
   top: 0;
@@ -103,7 +120,14 @@
   text-align: center;
 }
 
-.modal input, .modal select {
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+  }
+}
+
+.modal input,
+.modal select {
   width: 100%;
   padding: 8px;
   margin: 10px 0;

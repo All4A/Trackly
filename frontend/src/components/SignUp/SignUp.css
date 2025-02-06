@@ -11,6 +11,12 @@ body {
   margin: 50px auto;
   text-align: center;
 }
+@media (max-width: 768px) {
+  .signup-container {
+    width: 90%;
+    padding: 15px;
+  }
+}
 
 h2 {
   color: #333;
@@ -32,6 +38,12 @@ form {
   font-size: 16px;
   text-align: left;
   box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .input-field {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 
 .checkbox-container {
@@ -55,6 +67,12 @@ form {
   font-size: 16px;
   cursor: pointer;
   margin-top: 10px;
+}
+@media (max-width: 768px) {
+  .create-account-btn {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 
 .create-account-btn:hover {

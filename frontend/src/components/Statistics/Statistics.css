@@ -4,44 +4,52 @@
   height: 100vh;
   background-color: #ffffff;
 }
-
 .main-content {
   flex: 1;
   min-width: 0;
 }
-
 .chart-image {
   width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: 0;
 }
-
 .flex-container {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
-
 .weekly-activity {
   flex: 1;
   max-width: 45%;
 }
-
+@media (max-width: 768px) {
+  .weekly-activity {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}
 .monthly-history {
   flex: 1;
   max-width: 45%;
   margin-left: 5%;
 }
-
+@media (max-width: 768px) {
+  .monthly-history {
+    max-width: 100%;
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+}
 .personal-statistics {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 2%;
+  flex-wrap: wrap;
 }
-
 .statistic-item {
   display: flex;
   align-items: center;
@@ -52,7 +60,14 @@
   margin: 10px 0;
   width: 300px;
 }
-
+@media (max-width: 768px) {
+  .statistic-item {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+}
 .icon-container {
   background-color: #f0f0f0;
   border-radius: 50%;
@@ -63,30 +78,51 @@
   justify-content: center;
   margin-right: 20px;
 }
-
+@media (max-width: 768px) {
+  .icon-container {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
 .statistic-content p {
   font-size: 16px;
   color: #666;
   margin: 0;
 }
-
+@media (max-width: 768px) {
+  .statistic-content p {
+    font-size: 14px;
+  }
+}
 .statistic-content h3 {
   font-size: 24px;
   color: #333;
   margin: 5px 0 0;
 }
-
+@media (max-width: 768px) {
+  .statistic-content h3 {
+    font-size: 20px;
+  }
+}
 .dropdown-container {
   margin-bottom: 20px;
 }
-
 .dropdown-container label {
   margin-right: 10px;
   font-weight: bold;
 }
-
 .dropdown-container select {
   padding: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
+}
+@media (max-width: 768px) {
+  .dropdown-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .dropdown-container label {
+    margin-bottom: 5px;
+  }
 }
