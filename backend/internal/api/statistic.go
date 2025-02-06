@@ -20,14 +20,15 @@ func NewStatisticApi(habitRepo *repositories.HabitRepository, statisticRepo *rep
 }
 
 func (s StatisticApi) GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticParams) error {
-
 	if err := ctx.Bind(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{})
 	}
+	dateFrom := params.DateFrom.Time
+	dateTo := params.DateTo.Time.Add(time.Hour*24 - 1)
 
 	userId := ctx.Get("user_id").(int)
 
-	habit, err := s.habitRepo.GetHabitWithStatInInterval(habitId, userId, params.DateFrom.Time, params.DateTo.Time)
+	habit, err := s.habitRepo.GetHabitWithStatInInterval(habitId, userId, dateFrom, dateTo)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{})
 	}
@@ -41,9 +42,10 @@ func (s StatisticApi) GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int
 	switch params.GroupBy {
 
 	case Day:
+		byDay := periodsByDay(habit, dateFrom, dateTo)
 		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
 			GroupBy:  params.GroupBy,
-			Period:   periodsByDay(habit, params.DateFrom.Time, params.DateTo.Time),
+			Period:   byDay,
 			PlanUnit: PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
 		})
 	case Month:
@@ -68,7 +70,7 @@ func periodsByDay(habit *models.Habit, from time.Time, to time.Time) []PeriodVal
 	// Создаем карту для суммирования значений по дням
 	dailySums := make(map[string]int)
 	for _, score := range habit.HabitScore {
-		dayKey := score.DateTime.Format("2006-01-02") // Формат: ГГГГ-ММ-ДД
+		dayKey := score.DateTime.Format(time.DateOnly) // Формат: ГГГГ-ММ-ДД
 		dailySums[dayKey] += score.Value
 	}
 
@@ -78,8 +80,8 @@ func periodsByDay(habit *models.Habit, from time.Time, to time.Time) []PeriodVal
 	// Создаем итоговый массив
 	var scores []PeriodValue
 	for currentDate := minDate; !currentDate.After(maxDate); currentDate = currentDate.AddDate(0, 0, 1) {
-		dayKey := currentDate.Format("2006-01-02") // Формат: ГГГГ-ММ-ДД
-		value := dailySums[dayKey]                 // Если день отсутствует в карте, значение будет 0
+		dayKey := currentDate.Format(time.DateOnly) // Формат: ГГГГ-ММ-ДД
+		value := dailySums[dayKey]                  // Если день отсутствует в карте, значение будет 0
 		scores = append(scores, PeriodValue{
 			Interval: dayKey,
 			Value:    value,
@@ -96,7 +98,7 @@ func periodsByMonth(habit *models.Habit, from time.Time, to time.Time) []PeriodV
 	}
 
 	// Находим минимальную и максимальную дату
-	minDate, maxDate := findMinMaxDate(from, to)
+	minDate, maxDate := findMinMaxMonthDate(from, to)
 
 	// Создаем итоговый массив
 	scores := []PeriodValue{}
@@ -187,10 +189,18 @@ func findCurrentPlan(plans []models.Plan) *models.Plan {
 	return currentPlan
 }
 
-func findMinMaxDate(minDate, maxDate time.Time) (time.Time, time.Time) {
+func findMinMaxMonthDate(minDate, maxDate time.Time) (time.Time, time.Time) {
 	// Приводим минимальную и максимальную дату к началу месяца
 	minDate = time.Date(minDate.Year(), minDate.Month(), 1, 0, 0, 0, 0, minDate.Location())
 	maxDate = time.Date(maxDate.Year(), maxDate.Month(), 1, 0, 0, 0, 0, maxDate.Location())
+	return minDate, maxDate
+}
+
+func findMinMaxDate(minDate, maxDate time.Time) (time.Time, time.Time) {
+
+	// Приводим минимальную и максимальную дату к началу дня
+	minDate = time.Date(minDate.Year(), minDate.Month(), minDate.Day(), 0, 0, 0, 0, minDate.Location())
+	maxDate = time.Date(maxDate.Year(), maxDate.Month(), maxDate.Day(), 0, 0, 0, 0, maxDate.Location())
 
 	return minDate, maxDate
 }
