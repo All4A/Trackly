@@ -55,6 +55,11 @@ type Habit struct {
 	TodayValue int `json:"todayValue"`
 }
 
+// HabitStatisticAiCommentResponse defines model for HabitStatisticAiCommentResponse.
+type HabitStatisticAiCommentResponse struct {
+	Comment *string `json:"comment,omitempty"`
+}
+
 // HabitStatisticResponse defines model for HabitStatisticResponse.
 type HabitStatisticResponse struct {
 	GroupBy  StatisticGroupBy `json:"groupBy"`
@@ -159,6 +164,12 @@ type GetApiHabitsHabitIdStatisticParams struct {
 	DateFrom openapi_types.Date `form:"date-from" json:"date-from"`
 	DateTo   openapi_types.Date `form:"date-to" json:"date-to"`
 	GroupBy  StatisticGroupBy   `form:"group-by" json:"group-by"`
+}
+
+// GetApiHabitsHabitIdStatisticAiCommentParams defines parameters for GetApiHabitsHabitIdStatisticAiComment.
+type GetApiHabitsHabitIdStatisticAiCommentParams struct {
+	DateFrom openapi_types.Date `form:"date-from" json:"date-from"`
+	DateTo   openapi_types.Date `form:"date-to" json:"date-to"`
 }
 
 // PostApiUsersAvatarMultipartBody defines parameters for PostApiUsersAvatar.
@@ -293,6 +304,9 @@ type ClientInterface interface {
 
 	// GetApiHabitsHabitIdStatistic request
 	GetApiHabitsHabitIdStatistic(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiHabitsHabitIdStatisticAiComment request
+	GetApiHabitsHabitIdStatisticAiComment(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticAiCommentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiHabitsHabitIdStatisticTotal request
 	GetApiHabitsHabitIdStatisticTotal(ctx context.Context, habitId int, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -458,6 +472,18 @@ func (c *Client) PostApiHabitsHabitIdScore(ctx context.Context, habitId int, bod
 
 func (c *Client) GetApiHabitsHabitIdStatistic(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiHabitsHabitIdStatisticRequest(c.Server, habitId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiHabitsHabitIdStatisticAiComment(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticAiCommentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiHabitsHabitIdStatisticAiCommentRequest(c.Server, habitId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -891,6 +917,70 @@ func NewGetApiHabitsHabitIdStatisticRequest(server string, habitId int, params *
 	return req, nil
 }
 
+// NewGetApiHabitsHabitIdStatisticAiCommentRequest generates requests for GetApiHabitsHabitIdStatisticAiComment
+func NewGetApiHabitsHabitIdStatisticAiCommentRequest(server string, habitId int, params *GetApiHabitsHabitIdStatisticAiCommentParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "habitId", runtime.ParamLocationPath, habitId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/habits/%s/statistic/ai-comment", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "date-from", runtime.ParamLocationQuery, params.DateFrom); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "date-to", runtime.ParamLocationQuery, params.DateTo); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiHabitsHabitIdStatisticTotalRequest generates requests for GetApiHabitsHabitIdStatisticTotal
 func NewGetApiHabitsHabitIdStatisticTotalRequest(server string, habitId int) (*http.Request, error) {
 	var err error
@@ -1125,6 +1215,9 @@ type ClientWithResponsesInterface interface {
 	// GetApiHabitsHabitIdStatisticWithResponse request
 	GetApiHabitsHabitIdStatisticWithResponse(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticParams, reqEditors ...RequestEditorFn) (*GetApiHabitsHabitIdStatisticResponse, error)
 
+	// GetApiHabitsHabitIdStatisticAiCommentWithResponse request
+	GetApiHabitsHabitIdStatisticAiCommentWithResponse(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticAiCommentParams, reqEditors ...RequestEditorFn) (*GetApiHabitsHabitIdStatisticAiCommentResponse, error)
+
 	// GetApiHabitsHabitIdStatisticTotalWithResponse request
 	GetApiHabitsHabitIdStatisticTotalWithResponse(ctx context.Context, habitId int, reqEditors ...RequestEditorFn) (*GetApiHabitsHabitIdStatisticTotalResponse, error)
 
@@ -1315,6 +1408,28 @@ func (r GetApiHabitsHabitIdStatisticResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetApiHabitsHabitIdStatisticResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiHabitsHabitIdStatisticAiCommentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *HabitStatisticAiCommentResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiHabitsHabitIdStatisticAiCommentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiHabitsHabitIdStatisticAiCommentResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1538,6 +1653,15 @@ func (c *ClientWithResponses) GetApiHabitsHabitIdStatisticWithResponse(ctx conte
 		return nil, err
 	}
 	return ParseGetApiHabitsHabitIdStatisticResponse(rsp)
+}
+
+// GetApiHabitsHabitIdStatisticAiCommentWithResponse request returning *GetApiHabitsHabitIdStatisticAiCommentResponse
+func (c *ClientWithResponses) GetApiHabitsHabitIdStatisticAiCommentWithResponse(ctx context.Context, habitId int, params *GetApiHabitsHabitIdStatisticAiCommentParams, reqEditors ...RequestEditorFn) (*GetApiHabitsHabitIdStatisticAiCommentResponse, error) {
+	rsp, err := c.GetApiHabitsHabitIdStatisticAiComment(ctx, habitId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiHabitsHabitIdStatisticAiCommentResponse(rsp)
 }
 
 // GetApiHabitsHabitIdStatisticTotalWithResponse request returning *GetApiHabitsHabitIdStatisticTotalResponse
@@ -1809,6 +1933,32 @@ func ParseGetApiHabitsHabitIdStatisticResponse(rsp *http.Response) (*GetApiHabit
 	return response, nil
 }
 
+// ParseGetApiHabitsHabitIdStatisticAiCommentResponse parses an HTTP response from a GetApiHabitsHabitIdStatisticAiCommentWithResponse call
+func ParseGetApiHabitsHabitIdStatisticAiCommentResponse(rsp *http.Response) (*GetApiHabitsHabitIdStatisticAiCommentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiHabitsHabitIdStatisticAiCommentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest HabitStatisticAiCommentResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiHabitsHabitIdStatisticTotalResponse parses an HTTP response from a GetApiHabitsHabitIdStatisticTotalWithResponse call
 func ParseGetApiHabitsHabitIdStatisticTotalResponse(rsp *http.Response) (*GetApiHabitsHabitIdStatisticTotalResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -1935,6 +2085,9 @@ type ServerInterface interface {
 	// Получение статустики
 	// (GET /api/habits/{habitId}/statistic)
 	GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticParams) error
+	// Получение комметария от нейронке по статистике
+	// (GET /api/habits/{habitId}/statistic/ai-comment)
+	GetApiHabitsHabitIdStatisticAiComment(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticAiCommentParams) error
 	// Получение статустики
 	// (GET /api/habits/{habitId}/statistic/total)
 	GetApiHabitsHabitIdStatisticTotal(ctx echo.Context, habitId int) error
@@ -2092,6 +2245,40 @@ func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatistic(ctx echo.Context) 
 	return err
 }
 
+// GetApiHabitsHabitIdStatisticAiComment converts echo context to params.
+func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatisticAiComment(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "habitId" -------------
+	var habitId int
+
+	err = runtime.BindStyledParameterWithOptions("simple", "habitId", ctx.Param("habitId"), &habitId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter habitId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetApiHabitsHabitIdStatisticAiCommentParams
+	// ------------- Required query parameter "date-from" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "date-from", ctx.QueryParams(), &params.DateFrom)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter date-from: %s", err))
+	}
+
+	// ------------- Required query parameter "date-to" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "date-to", ctx.QueryParams(), &params.DateTo)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter date-to: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetApiHabitsHabitIdStatisticAiComment(ctx, habitId, params)
+	return err
+}
+
 // GetApiHabitsHabitIdStatisticTotal converts echo context to params.
 func (w *ServerInterfaceWrapper) GetApiHabitsHabitIdStatisticTotal(ctx echo.Context) error {
 	var err error
@@ -2190,6 +2377,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/api/habits/:habitId", wrapper.PutApiHabitsHabitId)
 	router.POST(baseURL+"/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
 	router.GET(baseURL+"/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
+	router.GET(baseURL+"/api/habits/:habitId/statistic/ai-comment", wrapper.GetApiHabitsHabitIdStatisticAiComment)
 	router.GET(baseURL+"/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
 	router.GET(baseURL+"/api/users/avatar", wrapper.GetApiUsersAvatar)
 	router.POST(baseURL+"/api/users/avatar", wrapper.PostApiUsersAvatar)

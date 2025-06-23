@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
@@ -24,16 +25,17 @@ func NewMinioClient(cfg *config.Config) (*MinioClient, error) {
 		})
 		if err != nil {
 			conErr = err
+			log.Printf("Failed to connect to MinIO (attempt %d/%d): %v", i+1, retryConnectCount, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 		client = c
 		conErr = nil
 		break
-
 	}
+
 	if conErr != nil {
-		return nil, conErr
+		return nil, fmt.Errorf("failed to connect to MinIO after %d attempts: %w", retryConnectCount, conErr)
 	}
 
 	err := initMinio(context.Background(), cfg, client)

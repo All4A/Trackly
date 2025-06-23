@@ -293,6 +293,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HabitStatisticTotalResponse'
+  /api/habits/{habitId}/statistic/ai-comment:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: date-from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: "2017-01-01"
+      - name: date-to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: "2017-01-01"
+    get:
+      tags:
+        - Hobbies statistic
+      summary: Получение комметария от нейронке по статистике
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Суммарная статистика хобби
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitStatisticAiCommentResponse'
 
 components:
   securitySchemes:
@@ -496,6 +530,12 @@ components:
           type: integer
         averagePerDay:
           type: integer
+
+    HabitStatisticAiCommentResponse:
+      type: object
+      properties:
+        comment:
+          type: string
 
     StatisticGroupBy:
       type: string

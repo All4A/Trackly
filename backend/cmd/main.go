@@ -10,6 +10,7 @@ import (
 	"trackly-backend/internal/db"
 	"trackly-backend/internal/middleware"
 	"trackly-backend/internal/repositories"
+	"trackly-backend/internal/service"
 )
 
 type Server struct {
@@ -55,7 +56,9 @@ func main() {
 
 	statisitcRepo := repositories.NewStatisticRepository(database)
 
-	statisticApi := api.NewStatisticApi(habitRepo, statisitcRepo)
+	aiServoce := service.NewYandexGptService(cfg.AiConfig)
+
+	statisticApi := api.NewStatisticApi(habitRepo, statisitcRepo, aiServoce)
 	progressApi := api.NewProgressApi(statisitcRepo, habitRepo, planRepo)
 	server := &Server{userApi, habitsApi, statisticApi, progressApi}
 
@@ -70,8 +73,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	wrapper := api.ServerInterfaceWrapper{
 		Handler: si,
 	}
-	router.Use(gomiddleware.Logger())
-	router.Use(middleware.Cors())
+	router.Use(gomiddleware.Logger(), middleware.Cors())
 
 	publicGroup := router.Group("")
 	publicGroup.POST("/api/auth/login", wrapper.PostApiAuthLogin)
@@ -89,6 +91,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	protectedGroup.POST("/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
 	protectedGroup.GET("/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
 	protectedGroup.GET("/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
+	protectedGroup.GET("/api/habits/:habitId/statistic/ai-comment", wrapper.GetApiHabitsHabitIdStatisticAiComment)
 	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
 	protectedGroup.GET("/api/users/profile", wrapper.GetApiUsersProfile)
 	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)
