@@ -2,14 +2,20 @@ package main
 
 import (
 	"flag"
-	"github.com/labstack/echo/v4"
-	gomiddleware "github.com/labstack/echo/v4/middleware"
 	"log"
+	"net/http"
+	"os"
 	"trackly-backend/internal/api"
 	"trackly-backend/internal/config"
 	"trackly-backend/internal/db"
 	"trackly-backend/internal/middleware"
 	"trackly-backend/internal/repositories"
+	"trackly-backend/internal/service"
+
+	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	gomiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
@@ -20,6 +26,14 @@ type Server struct {
 }
 
 func main() {
+	// Инициализация логирования в файл
+	logFile, err := os.OpenFile("/Users/nt1dc/GolandProjects/Trackly/backend/logs/app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("Не удалось открыть файл логов: %v", err)
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+
 	// Загрузка конфигурации
 	configFilePath := flag.String("configs", "", "Path to the configuration file")
 	flag.Parse()
@@ -55,11 +69,16 @@ func main() {
 
 	statisitcRepo := repositories.NewStatisticRepository(database)
 
-	statisticApi := api.NewStatisticApi(habitRepo, statisitcRepo)
+	aiServoce := service.NewYandexGptService(cfg.AiConfig)
+
+	statisticApi := api.NewStatisticApi(habitRepo, statisitcRepo, aiServoce)
 	progressApi := api.NewProgressApi(statisitcRepo, habitRepo, planRepo)
 	server := &Server{userApi, habitsApi, statisticApi, progressApi}
 
 	RegisterHandlers(e, server, cfg.JwtSecret)
+
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(":2112", nil) // порт для метрик
 
 	// Запуск сервера
 	e.Logger.Fatal(e.Start(":" + cfg.Port))
@@ -70,8 +89,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	wrapper := api.ServerInterfaceWrapper{
 		Handler: si,
 	}
-	router.Use(gomiddleware.Logger())
-	router.Use(middleware.Cors())
+	router.Use(gomiddleware.Logger(), middleware.Cors())
 
 	publicGroup := router.Group("")
 	publicGroup.POST("/api/auth/login", wrapper.PostApiAuthLogin)
@@ -89,6 +107,7 @@ func RegisterHandlers(router *echo.Echo, si api.ServerInterface, jwtSecret strin
 	protectedGroup.POST("/api/habits/:habitId/score", wrapper.PostApiHabitsHabitIdScore)
 	protectedGroup.GET("/api/habits/:habitId/statistic", wrapper.GetApiHabitsHabitIdStatistic)
 	protectedGroup.GET("/api/habits/:habitId/statistic/total", wrapper.GetApiHabitsHabitIdStatisticTotal)
+	protectedGroup.GET("/api/habits/:habitId/statistic/ai-comment", wrapper.GetApiHabitsHabitIdStatisticAiComment)
 	protectedGroup.POST("/api/users/avatar", wrapper.PostApiUsersAvatar)
 	protectedGroup.GET("/api/users/profile", wrapper.GetApiUsersProfile)
 	protectedGroup.PUT("/api/users/profile", wrapper.PutApiUsersProfile)

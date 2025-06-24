@@ -4,7 +4,7 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "ars2@mail.ru",
+  "email": "ars3@mail.ru",
   "password": "123",
   "username":"ars",
   "age":5
@@ -18,7 +18,7 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "ars2@mail.ru",
+  "email": "ars3@mail.ru",
   "password": "123"
 }
 
@@ -94,19 +94,25 @@ Authorization: Bearer {{auth_token}}
 
 
 ###
-POST http://localhost:8080/api/habits/1/score
+POST http://localhost:8080/api/habits/2/score
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "date": "2025-02-06T16:49:25.061Z",
+  "date": "2025-06-22T15:04:05Z",
   "value": 111
 }
 ###
 
 
 ###
-http://localhost:8080/api/habits/1/statistic?date-from=2025-01-30&date-to=2025-02-06&group-by=day
+http://localhost:8080/api/habits/2/statistic?date-from=2025-05-30&date-to=2025-11-06&group-by=day
+accept: application/json
+Authorization: Bearer {{auth_token}}
+###
+
+###
+http://localhost:8080/api/habits/2/statistic/ai-comment?date-from=2025-05-30&date-to=2025-11-06&group-by=day
 accept: application/json
 Authorization: Bearer {{auth_token}}
 ###

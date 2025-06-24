@@ -14,6 +14,7 @@ type Config struct {
 	Database    DbConfig    `yaml:"database"`
 	JwtSecret   string      `yaml:"jwt_secret"`
 	MinioConfig MinioConfig `yaml:"minio"`
+	AiConfig    AiConfig    `yaml:"aiConfig"`
 }
 
 type DbConfig struct {
@@ -30,6 +31,11 @@ type MinioConfig struct {
 	MinioRootUser     string `yaml:"root_user"`
 	MinioRootPassword string `yaml:"root_password"`
 	MinioUseSSL       bool   `yaml:"use_ssl"`
+}
+
+type AiConfig struct {
+	Token  string `yaml:"token"`
+	Folder string `yaml:"folder"`
 }
 
 func LoadConfig(filePath string) (*Config, error) {
@@ -61,6 +67,10 @@ func LoadConfig(filePath string) (*Config, error) {
 			MinioRootUser:     getEnv("MINIO_ROOT_USER", config.MinioConfig.MinioRootUser),
 			MinioRootPassword: getEnv("MINIO_ROOT_PASSWORD", config.MinioConfig.MinioRootPassword),
 			MinioUseSSL:       getEnvAsBool("MINIO_USE_SSL", config.MinioConfig.MinioUseSSL),
+		},
+		AiConfig: AiConfig{
+			Token:  getEnv("AI_TOKEN", config.AiConfig.Token),
+			Folder: getEnv("AI_FOLDER", config.AiConfig.Folder),
 		},
 	}
 

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -8,15 +9,17 @@ import (
 	"time"
 	"trackly-backend/internal/models"
 	"trackly-backend/internal/repositories"
+	"trackly-backend/internal/service"
 )
 
 type StatisticApi struct {
 	habitRepo     *repositories.HabitRepository
 	statisticRepo *repositories.StatisticRepository
+	aiService     service.AiService
 }
 
-func NewStatisticApi(habitRepo *repositories.HabitRepository, statisticRepo *repositories.StatisticRepository) *StatisticApi {
-	return &StatisticApi{habitRepo: habitRepo, statisticRepo: statisticRepo}
+func NewStatisticApi(habitRepo *repositories.HabitRepository, statisticRepo *repositories.StatisticRepository, aiService service.AiService) *StatisticApi {
+	return &StatisticApi{habitRepo: habitRepo, statisticRepo: statisticRepo, aiService: aiService}
 }
 
 func (s StatisticApi) GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticParams) error {
@@ -46,7 +49,7 @@ func (s StatisticApi) GetApiHabitsHabitIdStatistic(ctx echo.Context, habitId int
 		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
 			GroupBy:  params.GroupBy,
 			Period:   byDay,
-			PlanUnit: PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
+			PlanUnit: PlanUnit(*currentPlan.PlanUnit),
 		})
 	case Month:
 		return ctx.JSON(http.StatusOK, HabitStatisticResponse{
@@ -88,6 +91,52 @@ func periodsByDay(habit *models.Habit, from time.Time, to time.Time) []PeriodVal
 		})
 	}
 	return scores
+}
+func (s StatisticApi) GetApiHabitsHabitIdStatisticAiComment(ctx echo.Context, habitId int, params GetApiHabitsHabitIdStatisticAiCommentParams) error {
+	if err := ctx.Bind(&params); err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{})
+	}
+	dateFrom := params.DateFrom.Time
+	dateTo := params.DateTo.Time.Add(time.Hour*24 - 1)
+
+	userId := ctx.Get("user_id").(int)
+
+	habit, err := s.habitRepo.GetHabitWithStatInInterval(habitId, userId, dateFrom, dateTo)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{})
+	}
+
+	// сортируем
+	sort.Slice(habit.HabitScore, func(i, j int) bool {
+		return habit.HabitScore[i].DateTime.Before(habit.HabitScore[i].DateTime)
+	})
+	currentPlan := findCurrentPlan(habit.Plans)
+	byDay := periodsByDay(habit, dateFrom, dateTo)
+
+	aiReq := HabbitAiReq{
+		GroupBy:   Day,
+		Period:    byDay,
+		PlanUnit:  PlanUnit(fmt.Sprintf("%v", currentPlan.PlanUnit)),
+		HabitName: habit.HabitName,
+	}
+	marshaledStatistic, err := json.Marshal(aiReq)
+	if err != nil {
+		return err
+	}
+
+	comment, err := s.aiService.GetStatisticComment(string(marshaledStatistic))
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(200, HabitStatisticAiCommentResponse{Comment: &comment.Comment})
+}
+
+type HabbitAiReq struct {
+	GroupBy   StatisticGroupBy `json:"groupBy"`
+	Period    []PeriodValue    `json:"period"`
+	PlanUnit  PlanUnit         `json:"planUnit"`
+	HabitName string           `json:"habitName"`
 }
 
 func periodsByMonth(habit *models.Habit, from time.Time, to time.Time) []PeriodValue {
